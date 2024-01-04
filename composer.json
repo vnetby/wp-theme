@@ -1,0 +1,20 @@
+{
+    "name": "vnetby/wp-theme",
+    "description": "",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Vnetby\\Wptheme\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vadzim Kananovich",
+            "email": "vadzim.kananovich.by@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.4"
+    }
+}
