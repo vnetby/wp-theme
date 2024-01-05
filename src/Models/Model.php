@@ -213,4 +213,20 @@ abstract class Model
         }
         return (int)$this->wpItem->menu_order;
     }
+
+    function updateMeta(string $key, $value, $prevValue = '')
+    {
+        if ($this->isPost()) {
+            return update_post_meta($this->getId(), $key, $value, $prevValue);
+        }
+        return update_term_meta($this->getId(), $key, $value, $prevValue);
+    }
+
+    function deleteMeta(string $key, $value = '')
+    {
+        if ($this->isPost()) {
+            return delete_post_meta($this->getId(), $key, $value);
+        }
+        return delete_term_meta($this->getId(), $key, $value);
+    }
 }
