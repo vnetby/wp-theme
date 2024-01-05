@@ -178,4 +178,13 @@ abstract class Model
     {
         return $this instanceof Term;
     }
+
+    function getOrder(): int
+    {
+        if ($this->isTerm()) {
+            $val = get_term_meta($this->getId(), 'tax_position', true);
+            return $val ? (int)$val : 0;
+        }
+        return (int)$this->wpItem->menu_order;
+    }
 }
