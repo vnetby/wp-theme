@@ -82,7 +82,9 @@ class Loader
      */
     function setup(): self
     {
-        $this->registerTimezone();
+        // для wordpress важная настрайка
+        date_default_timezone_set('UTC');
+
         $this->registerLocale();
         $this->addDefaultFrontVars();
         $this->registerMenus();
@@ -100,17 +102,6 @@ class Loader
         $this->addFilters();
         $this->setupEntities();
 
-        return $this;
-    }
-
-
-    /**
-     * - Устанавливает временную зону на уровне php
-     * @return static
-     */
-    protected function registerTimezone()
-    {
-        date_default_timezone_set($this->getTimezone());
         return $this;
     }
 
