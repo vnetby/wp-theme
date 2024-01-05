@@ -4,6 +4,7 @@ namespace Vnetby\Wptheme;
 
 use Vnetby\Helpers\HelperPath;
 use Vnetby\Wptheme\Traits\Config\ConfigAjax;
+use Vnetby\Wptheme\Traits\Config\ConfigCache;
 use Vnetby\Wptheme\Traits\Config\ConfigEntities;
 use Vnetby\Wptheme\Traits\Config\ConfigLocale;
 use Vnetby\Wptheme\Traits\Config\ConfigMailer;
@@ -21,6 +22,7 @@ class Loader
     use ConfigAjax;
     use ConfigMailer;
     use ConfigTheme;
+    use ConfigCache;
 
     /**
      * - Устанавливаем значения по умолчанию
@@ -85,6 +87,7 @@ class Loader
         // для wordpress важная настрайка
         date_default_timezone_set('UTC');
 
+        $this->registerCache();
         $this->registerLocale();
         $this->addDefaultFrontVars();
         $this->registerMenus();
@@ -102,34 +105,6 @@ class Loader
         $this->addFilters();
         $this->setupEntities();
 
-        return $this;
-    }
-
-
-    /**
-     * - Регистрирует локаль, устанавливает необходимые хуки для корректной работы
-     * @return static
-     */
-    protected function registerLocale()
-    {
-        // устанавливаем переводы
-        load_textdomain($this->textDomain, $this->themePath('languages', $this->getLocale() . '.mo'));
-        add_action('after_setup_theme', function () {
-            load_theme_textdomain($this->textDomain, $this->themePath('languages'));
-        });
-
-        // устанавливаем локализацию сайта
-        if (!is_admin()) {
-            switch_to_locale($this->getLocale());
-            add_filter('locale', function ($locale) {
-                return $this->getLocale();
-            });
-            add_filter('language_attributes', function ($value) {
-                $locale = $this->getLocale();
-                $attr = str_replace("_", "-", $locale);
-                return 'lang="' . $attr . '"';
-            });
-        }
         return $this;
     }
 

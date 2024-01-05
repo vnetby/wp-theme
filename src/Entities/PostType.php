@@ -6,7 +6,7 @@ use Vnetby\Helpers\HelperArr;
 use Vnetby\Helpers\HelperFn;
 use Vnetby\Wptheme\Helpers\HelperAcf;
 
-class PostType extends Entity
+abstract class PostType extends Entity
 {
 
     function setup()

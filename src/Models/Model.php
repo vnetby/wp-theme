@@ -2,6 +2,8 @@
 
 namespace Vnetby\Wptheme\Models;
 
+use Vnetby\Wptheme\Container;
+use Vnetby\Wptheme\Entities\Entity;
 
 abstract class Model
 {
@@ -38,6 +40,30 @@ abstract class Model
      * @return ?static
      */
     abstract static function getById(int $id);
+
+    /**
+     * - Получает сущность элемента
+     * @return Entity
+     */
+    static function getEntity(): ?Entity
+    {
+        foreach (Container::getLoader()->getEntities() as $entity) {
+            if ($entity->getModelClass() === get_called_class()) {
+                return $entity;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * - Получает уникальный ключ сущности
+     * @return string
+     */
+    static function getKey(): string
+    {
+        return static::getEntity()->getKey();
+    }
 
 
     /**

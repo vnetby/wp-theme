@@ -4,6 +4,10 @@ namespace Vnetby\Wptheme\Traits\Config;
 
 use Error;
 use Vnetby\Wptheme\Entities\Entity;
+use Vnetby\Wptheme\Entities\EntityCategory;
+use Vnetby\Wptheme\Entities\EntityPage;
+use Vnetby\Wptheme\Entities\EntityPost;
+use Vnetby\Wptheme\Entities\EntityTag;
 use Vnetby\Wptheme\Entities\PostType;
 use Vnetby\Wptheme\Entities\Taxonomy;
 use Vnetby\Wptheme\Models\Model;
@@ -24,8 +28,8 @@ trait ConfigEntities
      * @var array<string,class-string<Taxonomy>>
      */
     protected array $entitiesTax = [
-        'category' => Taxonomy::class,
-        'post_tag' => Taxonomy::class
+        'category' => EntityCategory::class,
+        'post_tag' => EntityTag::class
     ];
 
     /**
@@ -33,8 +37,8 @@ trait ConfigEntities
      * @var array<string,class-string<PostType>>
      */
     protected array $entitiesPosts = [
-        'post' => PostType::class,
-        'page' => PostType::class
+        'post' => EntityPost::class,
+        'page' => EntityPage::class
     ];
 
 
@@ -118,6 +122,16 @@ trait ConfigEntities
     function getEntity(string $key): ?Entity
     {
         return $this->entities[$key] ?? null;
+    }
+
+
+    /**
+     * - Получает все зарегестрированные сущности
+     * @return Entity[]
+     */
+    function getEntities(): array
+    {
+        return $this->entities;
     }
 
 

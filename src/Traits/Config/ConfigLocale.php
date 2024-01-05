@@ -25,6 +25,34 @@ trait ConfigLocale
 
 
     /**
+     * - Регистрирует локаль, устанавливает необходимые хуки для корректной работы
+     * @return static
+     */
+    protected function registerLocale()
+    {
+        // устанавливаем переводы
+        load_textdomain($this->textDomain, $this->themePath('languages', $this->getLocale() . '.mo'));
+        add_action('after_setup_theme', function () {
+            load_theme_textdomain($this->textDomain, $this->themePath('languages'));
+        });
+
+        // устанавливаем локализацию сайта
+        if (!is_admin()) {
+            switch_to_locale($this->getLocale());
+            add_filter('locale', function ($locale) {
+                return $this->getLocale();
+            });
+            add_filter('language_attributes', function ($value) {
+                $locale = $this->getLocale();
+                $attr = str_replace("_", "-", $locale);
+                return 'lang="' . $attr . '"';
+            });
+        }
+        return $this;
+    }
+
+
+    /**
      * @param string $locale
      * @return static
      */
