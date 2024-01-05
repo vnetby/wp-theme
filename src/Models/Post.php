@@ -2,6 +2,7 @@
 
 namespace Vnetby\Wptheme\Models;
 
+use Vnetby\Helpers\HelperDate;
 use Vnetby\Wptheme\Container;
 use WP_Query;
 
@@ -75,5 +76,17 @@ class Post extends Model
             return $src ? $src : '';
         }
         return '';
+    }
+
+
+    function getPostDate(?string $format = null): string
+    {
+        if (!$format) {
+            $format = Container::getLoader()->getDateTimeFormat();
+        }
+
+        $date = $this->wpItem->post_date;
+
+        return HelperDate::format($format, $date);
     }
 }

@@ -89,6 +89,11 @@ trait ConfigLocale
         return $this->timeFormat;
     }
 
+    function getDateTimeFormat(): string
+    {
+        return $this->getDateFormat() . ' ' . $this->getTimeFormat();
+    }
+
     /**
      * @param array $messages
      * @return static
