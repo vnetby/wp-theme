@@ -88,16 +88,16 @@ abstract class Model
      */
     static function getByWpItem($wpItem)
     {
-        if ($wpItem instanceof \WP_Post) {
-            if (!isset(static::$cachePosts[$wpItem->ID])) {
-                static::$cachePosts[$wpItem->ID] = new static($wpItem);
-            }
-            return static::$cachePosts[$wpItem->ID];
-        }
-        if (!isset(static::$cacheTerms[$wpItem->term_id])) {
-            static::$cacheTerms[$wpItem->term_id] = new static($wpItem);
-        }
-        return static::$cacheTerms[$wpItem->term_id];
+        return self::fetchCache('getByWpItem:' . ($wpItem instanceof \WP_Post ? $wpItem->ID : $wpItem->term_id), function () use ($wpItem) {
+            return new static($wpItem);
+        });
+    }
+
+
+    static function fetchCache(string $key, callable $fn, int $ttl = 0)
+    {
+        $key = md5(get_called_class() . ':' . $key);
+        return Container::getLoader()->fetchCache($key, $fn, $ttl);
     }
 
 

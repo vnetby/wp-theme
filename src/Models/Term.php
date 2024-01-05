@@ -17,25 +17,21 @@ class Term extends Model
 
     static function getById(int $id)
     {
-        if (array_key_exists($id, static::$cacheTerms)) {
-            return static::$cacheTerms[$id];
-        }
+        return self::fetchCache('getById:' . $id, function () use ($id) {
+            $wpdb = static::getWpDb();
+            $table = $wpdb->term_taxonomy;
 
-        static::$cacheTerms[$id] = null;
+            $data = $wpdb->get_results("SELECT `taxonomy` FROM `${table}` WHERE `term_id` = {$id} LIMIT 1", ARRAY_A);
 
-        $wpdb = static::getWpDb();
-        $table = $wpdb->term_taxonomy;
+            if ($data && !is_wp_error($data)) {
+                $tax = $data[0]['taxonomy'];
 
-        $data = $wpdb->get_results("SELECT `taxonomy` FROM `${table}` WHERE `term_id` = {$id} LIMIT 1", ARRAY_A);
+                $res = get_term($id, $tax);
 
-        if ($data && !is_wp_error($data)) {
-            $tax = $data[0]['taxonomy'];
+                return $res ? static::getByWpItem($res) : null;
+            }
 
-            $res = get_term($id, $tax);
-
-            static::$cacheTerms[$id] = $res ? static::getByWpItem($res) : null;
-        }
-
-        return static::$cacheTerms[$id];
+            return null;
+        });
     }
 }

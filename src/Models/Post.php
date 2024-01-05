@@ -28,15 +28,10 @@ class Post extends Model
 
     static function getById(int $id)
     {
-        if (array_key_exists($id, static::$cachePosts)) {
-            return static::$cachePosts[$id];
-        }
-
-        $post = get_post($id);
-
-        static::$cachePosts[$id] = $post && !is_wp_error($post) ? static::getByWpItem($post) : null;
-
-        return static::$cachePosts[$id];
+        return self::fetchCache('getById:' . $id, function () use ($id) {
+            $post = get_post($id);
+            return $post && !is_wp_error($post) ? static::getByWpItem($post) : null;
+        });
     }
 
 
@@ -53,9 +48,7 @@ class Post extends Model
             $args = array_merge($args, $queryArgs);
         }
 
-        $cacheKey = md5('get_posts:' . serialize($args));
-
-        return Container::getLoader()->fetchCache($cacheKey, function () use ($args, $page, $perPage) {
+        return self::fetchCache('getPosts:' . serialize($args), function () use ($args, $page, $perPage) {
             $query = new WP_Query($args);
 
             $res = [];
@@ -65,7 +58,7 @@ class Post extends Model
             }
 
             return new DbResult($res, $page, $perPage, $query->found_posts);
-        }, 3600);
+        });
     }
 
 
