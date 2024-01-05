@@ -17,7 +17,7 @@
     "require": {
         "php": ">=7.4",
         "vnetby/helpers": "1.0.3",
-        "rakit/validation": "dev-master",
-        "phpmailer/phpmailer": "dev-master"
+        "rakit/validation": "~1.0.0",
+        "phpmailer/phpmailer": "~6.9.1"
     }
 }

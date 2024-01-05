@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53cb7f376ef96a3ab204df6736314b1c",
+    "content-hash": "8bed756c083b11f79945d32f19d8f398",
     "packages": [
         {
             "name": "phpmailer/phpmailer",
-            "version": "dev-master",
+            "version": "v6.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "5372c1694dea54e156443af9c888ccecfa52cb4d"
+                "reference": "039de174cd9c17a8389754d3b877a2ed22743e18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/5372c1694dea54e156443af9c888ccecfa52cb4d",
-                "reference": "5372c1694dea54e156443af9c888ccecfa52cb4d",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/039de174cd9c17a8389754d3b877a2ed22743e18",
+                "reference": "039de174cd9c17a8389754d3b877a2ed22743e18",
                 "shasum": ""
             },
             "require": {
@@ -47,7 +47,6 @@
                 "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)",
                 "thenetworg/oauth2-azure": "Needed for Microsoft XOAUTH2 authentication"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -78,7 +77,7 @@
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
             "support": {
                 "issues": "https://github.com/PHPMailer/PHPMailer/issues",
-                "source": "https://github.com/PHPMailer/PHPMailer/tree/master"
+                "source": "https://github.com/PHPMailer/PHPMailer/tree/v6.9.1"
             },
             "funding": [
                 {
@@ -86,20 +85,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-18T07:46:07+00:00"
+            "time": "2023-11-25T22:23:28+00:00"
         },
         {
             "name": "rakit/validation",
-            "version": "dev-master",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rakit/validation.git",
-                "reference": "ff003a35cdf5030a5f2482299f4c93f344a35b29"
+                "reference": "130f61b92aaf007129e5e50d83f731a9be3d1786"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rakit/validation/zipball/ff003a35cdf5030a5f2482299f4c93f344a35b29",
-                "reference": "ff003a35cdf5030a5f2482299f4c93f344a35b29",
+                "url": "https://api.github.com/repos/rakit/validation/zipball/130f61b92aaf007129e5e50d83f731a9be3d1786",
+                "reference": "130f61b92aaf007129e5e50d83f731a9be3d1786",
                 "shasum": ""
             },
             "require": {
@@ -107,11 +106,9 @@
                 "php": ">=7.0"
             },
             "require-dev": {
-                "php-coveralls/php-coveralls": "^2.2",
                 "phpunit/phpunit": "^6.5",
                 "squizlabs/php_codesniffer": "^3"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -131,9 +128,9 @@
             "description": "PHP Laravel like standalone validation library",
             "support": {
                 "issues": "https://github.com/rakit/validation/issues",
-                "source": "https://github.com/rakit/validation/tree/v1.4.0"
+                "source": "https://github.com/rakit/validation/tree/master"
             },
-            "time": "2020-08-27T05:07:01+00:00"
+            "time": "2018-12-02T17:46:31+00:00"
         },
         {
             "name": "vnetby/helpers",
@@ -176,10 +173,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "rakit/validation": 20,
-        "phpmailer/phpmailer": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
