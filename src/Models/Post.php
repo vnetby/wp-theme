@@ -66,4 +66,14 @@ class Post extends Model
     {
         return $this->wpItem->post_excerpt;
     }
+
+
+    function getImage($size = 'thumbnail', $icon = false): string
+    {
+        if ($img = get_post_thumbnail_id($this->getWpItem())) {
+            $src = wp_get_attachment_image_url($img, $size, $icon);
+            return $src ? $src : '';
+        }
+        return '';
+    }
 }
