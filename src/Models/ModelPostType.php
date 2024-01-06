@@ -123,4 +123,10 @@ class ModelPostType extends Model
 
         return HelperDate::format($format, $date);
     }
+
+
+    function isPublish(): bool
+    {
+        return $this->getWpItem()->post_status === 'publish';
+    }
 }
