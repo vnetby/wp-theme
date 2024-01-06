@@ -12,11 +12,19 @@ class Seo
      */
     static function addPostsSeo()
     {
-        add_action('add_meta_boxes', function () {
+        add_action('add_meta_boxes', function ($query, \WP_Post $post) {
+            $postType = get_post_type_object($post->post_type);
+
+            // тип поста не имеет публичной части
+            // значит сео нет смысла выводить
+            if (!$postType->publicly_queryable) {
+                return;
+            }
+
             add_meta_box('vnet_seo_metabox', __('SEO', 'vnet'), function ($post, $meta) {
                 Template::theFile(Container::getLoader()->libPath('templates/seo-metabox.php'), ['post' => $post]);
             });
-        });
+        }, 10, 2);
 
         add_action('save_post', function ($postId) {
             $title = $_REQUEST['vnet-seo-title'] ?? '';

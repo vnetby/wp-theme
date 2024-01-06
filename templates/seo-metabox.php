@@ -11,13 +11,6 @@ use Vnetby\Wptheme\Seo;
  */
 $post = $this->getArg('post');
 
-$postType = get_post_type_object($post->post_type);
-
-// тип поста не имеет публичной части
-// значит сео нет смысла выводить
-if (!$postType->publicly_queryable) {
-    return;
-}
 
 ?>
 
