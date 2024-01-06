@@ -2,7 +2,7 @@
 
 namespace Vnetby\Wptheme\Models;
 
-class Term extends Model
+class ModelTaxonomy extends Model
 {
 
     static function getCurrent()

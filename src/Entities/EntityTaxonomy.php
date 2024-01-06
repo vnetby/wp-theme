@@ -5,7 +5,7 @@ namespace Vnetby\Wptheme\Entities;
 use Vnetby\Helpers\HelperArr;
 use Vnetby\Helpers\HelperFn;
 
-abstract class Taxonomy extends Entity
+abstract class EntityTaxonomy extends Entity
 {
 
     function setup()

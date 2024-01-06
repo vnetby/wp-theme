@@ -8,6 +8,7 @@ use Vnetby\Wptheme\Entities\EntityCategory;
 use Vnetby\Wptheme\Entities\EntityPage;
 use Vnetby\Wptheme\Entities\EntityPost;
 use Vnetby\Wptheme\Entities\EntityTag;
+use Vnetby\Wptheme\Entities\EntityTaxonomy;
 use Vnetby\Wptheme\Entities\PostType;
 use Vnetby\Wptheme\Entities\Taxonomy;
 use Vnetby\Wptheme\Models\Model;
@@ -65,7 +66,7 @@ trait ConfigEntities
             throw new Error("Post type {$key} exists");
         }
 
-        if ($entityClass === Taxonomy::class || is_subclass_of($entityClass, Taxonomy::class)) {
+        if ($entityClass === EntityTaxonomy::class || is_subclass_of($entityClass, EntityTaxonomy::class)) {
             $this->entitiesTax[$key] = $entityClass;
         } else {
             $this->entitiesPosts[$key] = $entityClass;

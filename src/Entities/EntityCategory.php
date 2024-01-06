@@ -2,6 +2,6 @@
 
 namespace Vnetby\Wptheme\Entities;
 
-class EntityCategory extends Taxonomy
+class EntityCategory extends EntityTaxonomy
 {
 }

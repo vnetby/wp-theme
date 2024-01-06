@@ -2,6 +2,6 @@
 
 namespace Vnetby\Wptheme\Entities;
 
-class EntityPage extends PostType
+class EntityPage extends EntityPostType
 {
 }

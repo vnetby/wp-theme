@@ -6,7 +6,7 @@ use Vnetby\Helpers\HelperDate;
 use Vnetby\Wptheme\Container;
 use WP_Query;
 
-class Post extends Model
+class ModelPostType extends Model
 {
 
     /**

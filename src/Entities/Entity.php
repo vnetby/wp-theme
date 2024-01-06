@@ -4,6 +4,8 @@ namespace Vnetby\Wptheme\Entities;
 
 use Error;
 use Vnetby\Wptheme\Models\Model;
+use Vnetby\Wptheme\Models\ModelPostType;
+use Vnetby\Wptheme\Models\ModelTaxonomy;
 use Vnetby\Wptheme\Models\Post;
 use Vnetby\Wptheme\Models\Term;
 
@@ -41,7 +43,7 @@ abstract class Entity
     {
         $this->key = $key;
         if (!isset($this->model)) {
-            $this->model = $this->isPostType() ? Post::class : Term::class;
+            $this->model = $this->isPostType() ? ModelPostType::class : ModelTaxonomy::class;
         }
     }
 
@@ -64,12 +66,12 @@ abstract class Entity
 
     function isPostType(): bool
     {
-        return ($this instanceof PostType);
+        return ($this instanceof EntityPostType);
     }
 
     function isTaxonomy(): bool
     {
-        return ($this instanceof Taxonomy);
+        return ($this instanceof EntityTaxonomy);
     }
 
     protected function theAdminStyle(string $css)
