@@ -16,7 +16,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.4",
-        "vnetby/helpers": "1.0.4",
+        "vnetby/helpers": "1.0.5",
         "rakit/validation": "~1.0.0",
         "phpmailer/phpmailer": "~6.9.1"
     }
