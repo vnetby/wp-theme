@@ -230,7 +230,7 @@ abstract class Model
         return delete_term_meta($this->getId(), $key, $value);
     }
 
-    function getchCacheItem(string $key, callable $fn, int $ttl = 0)
+    function fetchCacheItem(string $key, callable $fn, int $ttl = 0)
     {
         return static::fetchCache($key . ':' . $this->getId(), $fn, $ttl);
     }
