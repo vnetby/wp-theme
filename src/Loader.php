@@ -9,6 +9,7 @@ use Vnetby\Wptheme\Traits\Config\ConfigEntities;
 use Vnetby\Wptheme\Traits\Config\ConfigLocale;
 use Vnetby\Wptheme\Traits\Config\ConfigMailer;
 use Vnetby\Wptheme\Traits\Config\ConfigPathes;
+use Vnetby\Wptheme\Traits\Config\ConfigSeo;
 use Vnetby\Wptheme\Traits\Config\ConfigTheme;
 use Vnetby\Wptheme\Traits\Singletone;
 
@@ -23,6 +24,7 @@ class Loader
     use ConfigMailer;
     use ConfigTheme;
     use ConfigCache;
+    use ConfigSeo;
 
     /**
      * - Устанавливаем значения по умолчанию
@@ -104,6 +106,7 @@ class Loader
         $this->removeHeadTags();
         $this->addFilters();
         $this->setupEntities();
+        $this->registerSeo();
 
         return $this;
     }
