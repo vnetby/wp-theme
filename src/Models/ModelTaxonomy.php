@@ -36,6 +36,33 @@ class ModelTaxonomy extends Model
     }
 
 
+    /**
+     * - Получает все термины
+     * @see https://wp-kama.ru/function/get_terms
+     * @param array $args
+     * @return static[] 
+     */
+    static function filter(array $args = []): array
+    {
+        $terms = get_terms(array_merge([
+            'hide_empty' => false,
+            'taxonomy' => static::getKey()
+        ], $args));
+
+        if (is_wp_error($terms)) {
+            return [];
+        }
+
+        $res = [];
+
+        foreach ($terms as $term) {
+            $res[] = new static($term);
+        }
+
+        return $res;
+    }
+
+
     static function isSingular(): bool
     {
         return is_tax(static::getKey());
