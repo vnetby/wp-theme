@@ -84,7 +84,7 @@ abstract class Model
     /**
      * - Получает по объекту элемента wordpress
      * @param \WP_Post|\WP_Term $wpItem
-     * @return void
+     * @return static
      */
     static function getByWpItem($wpItem)
     {
