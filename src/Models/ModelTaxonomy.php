@@ -40,4 +40,21 @@ class ModelTaxonomy extends Model
     {
         return is_tax(static::getKey());
     }
+
+
+    /**
+     * - Получает элемент по slug
+     * @param string $slug 
+     * @return null|static
+     */
+    static function getBySlug(string $slug): ?self
+    {
+        return static::fetchCache('getBySlug:' . $slug, function () use ($slug) {
+            $term = get_term_by('slug', esc_sql($slug), static::getKey());
+            if (!$term) {
+                return null;
+            }
+            return static::getByWpItem($term);
+        });
+    }
 }
