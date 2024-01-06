@@ -39,9 +39,6 @@ class Post extends Model
     static function getPublished(int $page = 1, int $perPage = -1, ?array $queryArgs = null): DbResult
     {
         $args = [
-            'post_type' => static::getKey(),
-            'posts_per_page' => $perPage,
-            'paged' => $page,
             'post_status' => 'publish'
         ];
 
@@ -49,8 +46,18 @@ class Post extends Model
             $args = array_merge($args, $queryArgs);
         }
 
-        return self::fetchCache('getPosts:' . serialize($args), function () use ($args, $page, $perPage) {
-            $query = new WP_Query($args);
+        return static::filter($args, $page, $perPage);
+    }
+
+
+    static function filter(array $queryArgs = [], int $page = 1, int $perPage = -1): DbResult
+    {
+        $queryArgs['post_type'] = static::getKey();
+        $queryArgs['paged'] = $page;
+        $queryArgs['posts_per_page'] = $perPage;
+
+        return static::fetchCache(serialize($queryArgs), function () use ($queryArgs, $page, $perPage) {
+            $query = new WP_Query($queryArgs);
 
             $res = [];
 
