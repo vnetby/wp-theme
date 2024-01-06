@@ -27,6 +27,8 @@ class Response
 
     public ?array $data = null;
 
+    public bool $clearInputs = false;
+
 
     /**
      * @param array{
@@ -35,7 +37,8 @@ class Response
      *      redirect: ?string,
      *      reload: ?bool,
      *      errorFields: ?array<string,string>,
-     *      data: ?array<string,mixed>
+     *      data: ?array<string,mixed>,
+     *      clearInputs: ?bool
      * } $data
      * @param integer $code
      */
@@ -48,6 +51,7 @@ class Response
         $this->reload = !empty($data['reload']);
         $this->errorFields = $data['errorFields'] ?? null;
         $this->data = $data['data'] ?? null;
+        $this->clearInputs = !empty($data['clearInputs']);
     }
 
 
