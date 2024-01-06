@@ -70,6 +70,13 @@ class ModelPostType extends Model
     }
 
 
+    static function urlArchive(): string
+    {
+        $url = get_post_type_archive_link(static::getKey());
+        return $url ? $url : '';
+    }
+
+
     /**
      * - Является ли текущая страница архивом данного типа поста
      * @return bool 
