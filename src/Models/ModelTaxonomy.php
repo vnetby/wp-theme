@@ -34,4 +34,10 @@ class ModelTaxonomy extends Model
             return null;
         });
     }
+
+
+    static function isSingular(): bool
+    {
+        return is_tax(static::getKey());
+    }
 }

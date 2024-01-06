@@ -29,7 +29,7 @@ class ModelPostType extends Model
 
     static function getById(int $id)
     {
-        return self::fetchCache('getById:' . $id, function () use ($id) {
+        return static::fetchCache('getById:' . $id, function () use ($id) {
             $post = get_post($id);
             return $post && !is_wp_error($post) ? static::getByWpItem($post) : null;
         });
