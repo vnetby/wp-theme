@@ -70,6 +70,26 @@ class ModelPostType extends Model
     }
 
 
+    /**
+     * - Является ли текущая страница архивом данного типа поста
+     * @return bool 
+     */
+    static function isArchive(): bool
+    {
+        return is_post_type_archive(static::getKey());
+    }
+
+
+    /**
+     * - Является ли текущая страница отдельной страницой записи типа поста
+     * @return bool
+     */
+    static function isSingular(): bool
+    {
+        return is_singular(static::getKey());
+    }
+
+
     function getExcerpt(): string
     {
         return $this->wpItem->post_excerpt;

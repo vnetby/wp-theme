@@ -197,12 +197,12 @@ abstract class Model
 
     function isPost(): bool
     {
-        return $this instanceof Post;
+        return $this instanceof ModelPostType;
     }
 
     function isTerm(): bool
     {
-        return $this instanceof Term;
+        return $this instanceof ModelTaxonomy;
     }
 
     function getOrder(): int
