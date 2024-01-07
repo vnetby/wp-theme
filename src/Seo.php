@@ -325,7 +325,7 @@ class Seo
             return self::getPostTitle($GLOBALS['post']->ID);
         }
         if (is_archive()) {
-            return self::getArchiveTitle($GLOBALS['wp_query']->query->post_type);
+            return self::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
         }
         if (is_tax()) {
             return self::getTermTitle(get_queried_object()->term_id);
@@ -346,7 +346,7 @@ class Seo
             return self::getPostDesc($GLOBALS['post']->ID);
         }
         if (is_archive()) {
-            return self::getArchiveDesc($GLOBALS['wp_query']->query->post_type);
+            return self::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
         }
         if (is_tax()) {
             return self::getTermDesc(get_queried_object()->term_id);
@@ -364,7 +364,7 @@ class Seo
             return self::getPostImage($GLOBALS['post']->ID);
         }
         if (is_archive()) {
-            return self::getArchiveImage($GLOBALS['wp_query']->query->post_type);
+            return self::getArchiveImage($GLOBALS['wp_query']->query['post_type']);
         }
         if (is_tax()) {
             return self::getTermImage(get_queried_object()->term_id);
