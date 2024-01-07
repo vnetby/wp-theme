@@ -101,44 +101,42 @@ class Seo
     {
         // настройки сео поста
 
-        $postTypes = self::getPublicPostTypes();
+        add_action('add_meta_boxes', function ($query, \WP_Post $post) {
+            if (!static::isPublicPostType($post->post_type)) {
+                return;
+            }
 
-        foreach ($postTypes as $postType) {
-            add_action('add_meta_boxes', function ($query, \WP_Post $post) use ($postType) {
-                if ($post->post_type !== $postType->name) {
-                    return;
-                }
-
-                add_meta_box('vnet_seo_metabox', __('SEO', 'vnet'), function (\WP_Post $post, $meta) {
-                    echo '<p>';
-                    echo __('Приоритетность заголовка: СЕО заголовок; название поста.', 'vnet');
-                    echo '<br>';
-                    echo __('Приоритетность описания: СЕО описание; краткое описание поста.', 'vnet');
-                    echo '<br>';
-                    echo __('Приоритетность картинки: СЕО картинка; картинка поста; картинка архива; картинка по умолчанию.', 'vnet');
-                    echo '</p>';
-                    Template::theFile(Container::getLoader()->libPath('templates/seo-metabox.php'), [
-                        'title' => self::getPostMetaTitle($post->ID),
-                        'desc' => self::getPostMetaDesc($post->ID),
-                        'image' => self::getPostMetaImageId($post->ID),
-                        'name_title' => 'vnet-seo-title',
-                        'name_desc' => 'vnet-seo-desc',
-                        'name_image' => 'vnet-seo-image'
-                    ]);
-                });
-            }, 10, 2);
-
-            add_action('save_post', function ($postId) use ($postType) {
-                $post = get_post($postId);
-                if (!$post || $post->post_type !== $postType->name) {
-                    return;
-                }
-                $title = $_REQUEST['vnet-seo-title'] ?? '';
-                $desc = $_REQUEST['vnet-seo-desc'] ?? '';
-                $image = $_REQUEST['vnet-seo-image'] ?? '';
-                update_post_meta($postId, 'vnet_seo', serialize(['title' =>  $title, 'desc' => $desc, 'image' => $image]));
+            add_meta_box('vnet_seo_metabox', __('SEO', 'vnet'), function (\WP_Post $post, $meta) {
+                echo '<p>';
+                echo __('Приоритетность заголовка: СЕО заголовок; название поста.', 'vnet');
+                echo '<br>';
+                echo __('Приоритетность описания: СЕО описание; краткое описание поста.', 'vnet');
+                echo '<br>';
+                echo __('Приоритетность картинки: СЕО картинка; картинка поста; картинка архива; картинка по умолчанию.', 'vnet');
+                echo '</p>';
+                Template::theFile(Container::getLoader()->libPath('templates/seo-metabox.php'), [
+                    'title' => self::getPostMetaTitle($post->ID),
+                    'desc' => self::getPostMetaDesc($post->ID),
+                    'image' => self::getPostMetaImageId($post->ID),
+                    'name_title' => 'vnet-seo-title',
+                    'name_desc' => 'vnet-seo-desc',
+                    'name_image' => 'vnet-seo-image'
+                ]);
             });
-        }
+        }, 10, 2);
+
+        add_action('save_post', function ($postId) {
+            $post = get_post($postId);
+
+            if (!static::isPublicPostType($post->post_type)) {
+                return;
+            }
+
+            $title = $_REQUEST['vnet-seo-title'] ?? '';
+            $desc = $_REQUEST['vnet-seo-desc'] ?? '';
+            $image = $_REQUEST['vnet-seo-image'] ?? '';
+            update_post_meta($postId, 'vnet_seo', serialize(['title' =>  $title, 'desc' => $desc, 'image' => $image]));
+        });
 
 
         // настройки сео архивов и общие
@@ -247,6 +245,17 @@ class Seo
             }
         }
         return $res;
+    }
+
+    static function isPublicPostType(string $postType): bool
+    {
+        $postTypes = self::getPublicPostTypes();
+        foreach ($postTypes as $postType) {
+            if ($postType->name === $postType) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
