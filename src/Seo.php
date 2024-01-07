@@ -123,7 +123,7 @@ class Seo
             if (!$postType) {
                 continue;
             }
-            if ($postType->has_archive && $postType->public) {
+            if ($postType->has_archive && $postType->publicly_queryable) {
                 $res[] = $postType;
             }
         }
