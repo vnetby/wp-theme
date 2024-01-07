@@ -190,6 +190,10 @@ abstract class EntityPostType extends Entity
     {
         add_action('restrict_manage_posts', function () use ($drawCallback) {
             global $pagenow;
+            // на страницце списка постов в админке, данный параметр отсутвует
+            if (empty($_GET['post_type'])) {
+                return;
+            }
             if (!is_admin() || $pagenow !== 'edit.php' || $_GET['post_type'] !== $this->getKey()) {
                 return;
             }
@@ -198,6 +202,10 @@ abstract class EntityPostType extends Entity
 
         add_filter('parse_query', function (\WP_Query $query) use ($filterCallback) {
             global $pagenow;
+            // на страницце списка постов в админке, данный параметр отсутвует
+            if (empty($_GET['post_type'])) {
+                return;
+            }
             if (!is_admin() || $pagenow !== 'edit.php' || $_GET['post_type'] !== $this->getKey() || !$query->is_main_query()) {
                 return;
             }
