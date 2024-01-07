@@ -251,7 +251,7 @@ class Seo
     {
         $postTypes = self::getPublicPostTypes();
         foreach ($postTypes as $postType) {
-            if ($postType->name === $postType) {
+            if ($postType->name === $postType->name) {
                 return true;
             }
         }
