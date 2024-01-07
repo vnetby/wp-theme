@@ -4,7 +4,7 @@
  * @var \Vnetby\Wptheme\Front\Template $this
  */
 
-use Vnetby\Wptheme\Seo;
+use Vnetby\Wptheme\Container;
 
 /**
  * @var \WP_Post $post
@@ -19,24 +19,28 @@ $nameTitle = $this->getArg('name_title');
 $nameDesc = $this->getArg('name_desc');
 $nameImg = $this->getArg('name_image');
 
+$seoClass = Container::getClassSeo();
+
+wp_enqueue_media();
+
 ?>
 
 <div style="margin-bottom: 10px;">
     <label for="<?= $nameTitle; ?>" style="display: block; margin-bottom: 3px; width: fit-content;">
         <?= __('Заголовок', 'vnet'); ?>
     </label>
-    <input type="text" name="<?= $nameTitle; ?>" id="<?= $nameTitle; ?>" style="width: 100%;" value="<?= $title; ?>">
+    <input type="text" name="<?= $nameTitle; ?>" id="<?= $nameTitle; ?>" style="width: 100%;" value="<?= $title; ?>" maxlength="<?= $seoClass::LIMIT_TITLE; ?>">
     <p style="margin: 0px; margin-top: 3px;">
-        <?= __('Маскимальное кол-во символов: 70', 'vnet'); ?>
+        <?= __('Маскимальное кол-во символов: ' . $seoClass::LIMIT_TITLE, 'vnet'); ?>
     </p>
 </div>
 <div style="margin-bottom: 10px;">
     <label for="<?= $nameDesc; ?>" style="display: block; margin-bottom: 3px; width: fit-content;">
         <?= __('Описание', 'vnet'); ?>
     </label>
-    <textarea name="<?= $nameDesc; ?>" id="<?= $nameDesc; ?>" style="width: 100%; min-height: 150px;"><?= $desc; ?></textarea>
+    <textarea name="<?= $nameDesc; ?>" id="<?= $nameDesc; ?>" style="width: 100%; min-height: 150px;" maxlength="<?= $seoClass::LIMIT_DESC; ?>"><?= $desc; ?></textarea>
     <p style="margin: 0px; margin-top: 3px;">
-        <?= __('Маскимальное кол-во символов: 300', 'vnet'); ?>
+        <?= __('Маскимальное кол-во символов: ' . $seoClass::LIMIT_DESC, 'vnet'); ?>
     </p>
 </div>
 <div>
@@ -60,7 +64,7 @@ $nameImg = $this->getArg('name_image');
         <button type="button" class="button js-<?= $nameImg; ?>-delete" style="margin-left: 10px;<?= !$imgId ? ' display: none;' : ''; ?>">Удалить</button>
     </div>
     <p style="margin: 0px; margin-top: 3px;">
-        <?= __('Рекомендуемй размер: 1200x630', 'vnet'); ?>
+        <?= __('Рекомендуемй размер: ' . $seoClass::LIMIT_IMG_WIDTH . 'x' . $seoClass::LIMIT_IMG_HEIGHT, 'vnet'); ?>
     </p>
 </div>
 <script>

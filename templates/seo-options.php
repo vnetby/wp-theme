@@ -6,15 +6,13 @@
 
 use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Front\Template;
-use Vnetby\Wptheme\Seo;
 
 if (!empty($_REQUEST['update_options'])) {
-    Seo::saveOptionsFromRequest();
+    Container::getClassSeo()::saveOptionsFromRequest();
 }
 
-$postTypes = Seo::getPostTypesWithArchives();
+$postTypes = Container::getClassSeo()::getPostTypesWithArchives();
 
-wp_enqueue_media();
 ?>
 
 <div class="wrap">
@@ -78,13 +76,13 @@ wp_enqueue_media();
                                 <p style="font-weight: 500;">
                                     <?= __('Заголовок и описание будут применяться ко всем страницам арховов.', 'vnet'); ?>
                                     <br>
-                                    <?= __('Установленное изображение будет применяться ко всем страницам, на которых нет изображения.', 'vnet'); ?>
+                                    <?= __('Установленное изображение будет применяться ко всем страницам, на которых нет изображения (картинка по умолчанию).', 'vnet'); ?>
                                 </p>
                                 <?php
                                 Template::theFile(Container::getLoader()->libPath('templates/seo-metabox.php'), [
-                                    'title' => Seo::getOptionCommonArchiveTitle(),
-                                    'desc' => Seo::getOptionCommonArchiveDesc(),
-                                    'image' => Seo::getOptionCommonImageId(),
+                                    'title' => Container::getClassSeo()::getOptionCommonArchiveTitle(),
+                                    'desc' => Container::getClassSeo()::getOptionCommonArchiveDesc(),
+                                    'image' => Container::getClassSeo()::getOptionCommonImageId(),
                                     'name_title' => 'vnet-seo-common-archive-title',
                                     'name_desc' => 'vnet-seo-common-archive-desc',
                                     'name_image' => 'vnet-seo-common-image'
@@ -100,9 +98,9 @@ wp_enqueue_media();
                                     </p>
                                     <?php
                                     Template::theFile(Container::getLoader()->libPath('templates/seo-metabox.php'), [
-                                        'title' => Seo::getOptionArchiveTitle($postType->name),
-                                        'desc' => Seo::getOptionArchiveDesc($postType->name),
-                                        'image' => Seo::getOptionArchiveImageId($postType->name),
+                                        'title' => Container::getClassSeo()::getOptionArchiveTitle($postType->name),
+                                        'desc' => Container::getClassSeo()::getOptionArchiveDesc($postType->name),
+                                        'image' => Container::getClassSeo()::getOptionArchiveImageId($postType->name),
                                         'name_title' => 'vnet-seo-post-' . $postType->name . '-title',
                                         'name_desc' => 'vnet-seo-post-' . $postType->name . '-desc',
                                         'name_image' => 'vnet-seo-post-' . $postType->name . '-image'

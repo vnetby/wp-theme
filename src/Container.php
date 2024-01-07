@@ -12,6 +12,7 @@ class Container
     private static string $classAjaxResponse = Response::class;
     private static string $classTemplate = Template::class;
     private static string $classMailer = Mailer::class;
+    private static string $classSeo = Seo::class;
 
 
     static function getLoader(): Loader
@@ -89,5 +90,21 @@ class Container
     static function getClassMailer(): string
     {
         return self::$classMailer;
+    }
+
+    /**
+     * @param class-string<Seo> $classSeo
+     */
+    static function setClassSeo(string $classSeo)
+    {
+        self::$classSeo = $classSeo;
+    }
+
+    /**
+     * @return class-string<Seo>
+     */
+    static function getClassSeo(): string
+    {
+        return self::$classSeo;
     }
 }

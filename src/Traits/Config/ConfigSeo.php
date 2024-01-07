@@ -7,26 +7,44 @@ use Vnetby\Wptheme\Seo;
 trait ConfigSeo
 {
 
-    protected bool $pagesSeo = true;
+    protected bool $seoEnabled = true;
+
+    protected string $notFoundTitle;
+
 
     /**
      * @return static
      */
-    function enablePagesSeo(bool $enable)
+    function setSeoEnabled(bool $enable)
     {
-        $this->pagesSeo = $enable;
+        $this->seoEnabled = $enable;
         return $this;
     }
 
-    function isPagesSeoEnabled(): bool
+    function isSeoEnabled(): bool
     {
-        return $this->pagesSeo;
+        return $this->seoEnabled;
     }
 
     protected function registerSeo()
     {
-        if ($this->isPagesSeoEnabled()) {
-            Seo::addPostsSeo();
+        if ($this->isSeoEnabled()) {
+            Seo::setupSeoSettings();
+            Seo::setup();
         }
+    }
+
+    /**
+     * @return static
+     */
+    function setNotFoundTitle(string $title)
+    {
+        $this->notFoundTitle = $title;
+        return $this;
+    }
+
+    function getNotFoundTitle(): string
+    {
+        return isset($this->notFoundTitle) ? $this->notFoundTitle : __('Страница не найдена', 'vnet');
     }
 }
