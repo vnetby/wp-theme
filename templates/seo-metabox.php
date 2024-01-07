@@ -11,53 +11,60 @@ use Vnetby\Wptheme\Seo;
  */
 $post = $this->getArg('post');
 
+$title = $this->getArg('title', '');
+$desc = $this->getArg('desc', '');
+$imgId = (int)$this->getArg('image', 0);
+
+$nameTitle = $this->getArg('name_title');
+$nameDesc = $this->getArg('name_desc');
+$nameImg = $this->getArg('name_image');
 
 ?>
 
 <div style="margin-bottom: 10px;">
-    <label for="vnet-seo-title" style="display: block; margin-bottom: 3px; width: fit-content;">
+    <label for="<?= $nameTitle; ?>" style="display: block; margin-bottom: 3px; width: fit-content;">
         <?= __('Заголовок', 'vnet'); ?>
     </label>
-    <input type="text" name="vnet-seo-title" id="vnet-seo-title" style="width: 100%;" value="<?= Seo::getPostTitle($post->ID); ?>">
+    <input type="text" name="<?= $nameTitle; ?>" id="<?= $nameTitle; ?>" style="width: 100%;" value="<?= $title; ?>">
     <p style="margin: 0px; margin-top: 3px;">
         <?= __('Маскимальное кол-во символов: 70', 'vnet'); ?>
     </p>
 </div>
 <div style="margin-bottom: 10px;">
-    <label for="vnet-seo-desc" style="display: block; margin-bottom: 3px; width: fit-content;">
+    <label for="<?= $nameDesc; ?>" style="display: block; margin-bottom: 3px; width: fit-content;">
         <?= __('Описание', 'vnet'); ?>
     </label>
-    <textarea name="vnet-seo-desc" id="vnet-seo-desc" style="width: 100%; min-height: 150px;"><?= Seo::getPostDesc($post->ID); ?></textarea>
+    <textarea name="<?= $nameDesc; ?>" id="<?= $nameDesc; ?>" style="width: 100%; min-height: 150px;"><?= $desc; ?></textarea>
     <p style="margin: 0px; margin-top: 3px;">
         <?= __('Маскимальное кол-во символов: 300', 'vnet'); ?>
     </p>
 </div>
 <div>
-    <label for="vnet-seo-image" style="display: block; margin-bottom: 3px; width: fit-content;">
+    <label for="<?= $nameImg; ?>" style="display: block; margin-bottom: 3px; width: fit-content;">
         <?= __('Изображение', 'vnet'); ?>
     </label>
     <?php
-    if ($img = Seo::getPostImage($post->ID)) {
+    if ($imgId) {
     ?>
-        <img src="<?= $img; ?>" class="js-vnet-seo-image" alt="image" style="width: 350px; height: 200px; object-fit: contain; margin-bottom: 5px;">
+        <img src="<?= wp_get_attachment_image_url($imgId, 'full'); ?>" class="js-<?= $nameImg; ?>" alt="image" style="width: 350px; height: 200px; object-fit: contain; margin-bottom: 5px;">
     <?php
     } else {
     ?>
-        <img src="" class="js-vnet-seo-image" alt="image" style="width: 350px; height: 200px; object-fit: contain; margin-bottom: 5px; display: none;">
+        <img src="" class="js-<?= $nameImg; ?>" alt="image" style="width: 350px; height: 200px; object-fit: contain; margin-bottom: 5px; display: none;">
     <?php
     }
     ?>
-    <input type="hidden" name="vnet-seo-image" value="<?= Seo::getPostImageId($post->ID); ?>">
+    <input type="hidden" name="<?= $nameImg; ?>" value="<?= $imgId; ?>">
     <div style="display: flex; align-items: center;">
-        <button type="button" class="js-vnet-seo-image-upload button" id="vnet-seo-image"><?= __('Загрузить', 'vnet'); ?></button>
-        <button type="button" class="button js-vnet-seo-image-delete" style="margin-left: 10px;<?= !Seo::getPostImageId($post->ID) ? ' display: none;' : ''; ?>">Удалить</button>
+        <button type="button" class="js-<?= $nameImg; ?>-upload button" id="<?= $nameImg; ?>"><?= __('Загрузить', 'vnet'); ?></button>
+        <button type="button" class="button js-<?= $nameImg; ?>-delete" style="margin-left: 10px;<?= !$imgId ? ' display: none;' : ''; ?>">Удалить</button>
     </div>
     <p style="margin: 0px; margin-top: 3px;">
         <?= __('Рекомендуемй размер: 1200x630', 'vnet'); ?>
     </p>
 </div>
 <script>
-    jQuery('.js-vnet-seo-image-upload').on('click', function(e) {
+    jQuery('.js-<?= $nameImg; ?>-upload').on('click', function(e) {
         e.preventDefault();
         let frame = wp.media({
             title: '<?= __('Выберите изображение', 'vnet'); ?>',
@@ -75,19 +82,19 @@ $post = $this->getArg('post');
             let image = frame.state().get('selection').first();
             let id = image.id;
             let url = image.attributes.link;
-            jQuery('.js-vnet-seo-image').attr('src', url).css('display', 'block');
-            jQuery('[name="vnet-seo-image"]').val(id);
-            jQuery('.js-vnet-seo-image-delete').css('display', 'inline-block');
+            jQuery('.js-<?= $nameImg; ?>').attr('src', url).css('display', 'block');
+            jQuery('[name="<?= $nameImg; ?>"]').val(id);
+            jQuery('.js-<?= $nameImg; ?>-delete').css('display', 'inline-block');
             frame.close();
         });
 
         frame.open();
     });
 
-    jQuery('.js-vnet-seo-image-delete').on('click', function(e) {
+    jQuery('.js-<?= $nameImg; ?>-delete').on('click', function(e) {
         e.preventDefault();
-        jQuery('.js-vnet-seo-image').css('display', 'none');
-        jQuery('.js-vnet-seo-image-delete').css('display', 'none');
-        jQuery('[name="vnet-seo-image"]').val(0);
+        jQuery('.js-<?= $nameImg; ?>').css('display', 'none');
+        jQuery('.js-<?= $nameImg; ?>-delete').css('display', 'none');
+        jQuery('[name="<?= $nameImg; ?>"]').val(0);
     });
 </script>

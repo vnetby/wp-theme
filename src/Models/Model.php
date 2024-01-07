@@ -4,6 +4,7 @@ namespace Vnetby\Wptheme\Models;
 
 use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Entities\Entity;
+use Vnetby\Wptheme\Seo;
 
 abstract class Model
 {
@@ -55,7 +56,6 @@ abstract class Model
         return null;
     }
 
-
     /**
      * - Получает уникальный ключ сущности
      * @return string
@@ -63,6 +63,26 @@ abstract class Model
     static function getKey(): string
     {
         return static::getEntity()->getKey();
+    }
+
+    static function getArchiveSeoTitle(): string
+    {
+        return Seo::getArchiveTitle(static::getKey());
+    }
+
+    static function getArchiveSeoDesc(): string
+    {
+        return Seo::getArchiveDesc(static::getKey());
+    }
+
+    static function getArchiveSeoImageId(): int
+    {
+        return Seo::getArchiveImageId(static::getKey());
+    }
+
+    static function getArchiveSeoImage(): string
+    {
+        return Seo::getArchiveImage(static::getKey());
     }
 
 
@@ -233,5 +253,25 @@ abstract class Model
     function fetchCacheItem(string $key, callable $fn, int $ttl = 0)
     {
         return static::fetchCache($key . ':' . $this->getId(), $fn, $ttl);
+    }
+
+    function getSeoTitle(): string
+    {
+        return Seo::getPostTitle($this->getId());
+    }
+
+    function getSeoDesc(): string
+    {
+        return Seo::getPostDesc($this->getId());
+    }
+
+    function getSeoImageId(): int
+    {
+        return Seo::getPostImageId($this->getId());
+    }
+
+    function getSeoImage(): string
+    {
+        return Seo::getPostImage($this->getId());
     }
 }
