@@ -322,17 +322,17 @@ class Seo
      */
     static function getCurrentTitle(): string
     {
+        if (is_404()) {
+            return Container::getLoader()->getNotFoundTitle();
+        }
         if (is_singular()) {
             return self::getPostTitle($GLOBALS['post']->ID);
-        }
-        if (is_archive()) {
-            return self::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
         }
         if (is_tax()) {
             return self::getTermTitle(get_queried_object()->term_id);
         }
-        if (is_404()) {
-            return Container::getLoader()->getNotFoundTitle();
+        if (is_archive()) {
+            return self::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
         }
         return '';
     }
@@ -346,11 +346,11 @@ class Seo
         if (is_singular()) {
             return self::getPostDesc($GLOBALS['post']->ID);
         }
-        if (is_archive()) {
-            return self::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
-        }
         if (is_tax()) {
             return self::getTermDesc(get_queried_object()->term_id);
+        }
+        if (is_archive()) {
+            return self::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
         }
         return '';
     }
@@ -364,11 +364,11 @@ class Seo
         if (is_singular()) {
             return self::getPostImage($GLOBALS['post']->ID);
         }
-        if (is_archive()) {
-            return self::getArchiveImage($GLOBALS['wp_query']->query['post_type']);
-        }
         if (is_tax()) {
             return self::getTermImage(get_queried_object()->term_id);
+        }
+        if (is_archive()) {
+            return self::getArchiveImage($GLOBALS['wp_query']->query['post_type']);
         }
         return '';
     }
@@ -408,7 +408,7 @@ class Seo
 
     static function getTermImage(int $termId): string
     {
-        if ($img = self::getTermImage($termId)) {
+        if ($img = self::getTermMetaImageId($termId)) {
             return wp_get_attachment_image_url($img, 'full');
         }
         return '';
