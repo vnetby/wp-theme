@@ -547,7 +547,7 @@ class Seo
 
     static function getArchiveImageId(string $postType): int
     {
-        if ($img = self::getArchiveImageId($postType)) {
+        if ($img = self::getOptionArchiveImageId($postType)) {
             return $img;
         }
         return self::getOptionCommonImageId();
