@@ -317,6 +317,7 @@ class Seo
 
     /**
      * - Получает заголовок текущей страницы
+     * 
      * @return string
      */
     static function getCurrentTitle(): string
