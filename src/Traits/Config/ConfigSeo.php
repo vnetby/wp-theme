@@ -2,7 +2,7 @@
 
 namespace Vnetby\Wptheme\Traits\Config;
 
-use Vnetby\Wptheme\Seo;
+use Vnetby\Wptheme\Container;
 
 trait ConfigSeo
 {
@@ -29,8 +29,8 @@ trait ConfigSeo
     protected function registerSeo()
     {
         if ($this->isSeoEnabled()) {
-            Seo::setupSeoSettings();
-            Seo::setup();
+            Container::getClassSeo()::setupSeoSettings();
+            Container::getClassSeo()::setup();
         }
     }
 
