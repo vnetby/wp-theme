@@ -106,6 +106,10 @@ trait ConfigEntities
             if ($term = get_queried_object()) {
                 return $term->taxonomy;
             }
+            return '';
+        }
+        if (is_archive()) {
+            return $GLOBALS['wp_query']->query['post_type'];
         }
         return '';
     }
