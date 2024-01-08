@@ -17,6 +17,7 @@
     "require": {
         "php": ">=7.4",
         "vnetby/helpers": "1.0.5",
+        "vnetby/schemaorg": "1.0.9",
         "rakit/validation": "~1.0.0",
         "phpmailer/phpmailer": "~6.9.1"
     }

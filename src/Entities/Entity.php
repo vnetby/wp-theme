@@ -244,7 +244,7 @@ abstract class Entity
 
     /**
      * - Получает текущий элемент
-     * @return Post|Term|null
+     * @return ModelPostType|ModelTaxonomy|null
      */
     function getCurrentElement()
     {

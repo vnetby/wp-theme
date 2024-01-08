@@ -12,6 +12,8 @@ use Vnetby\Wptheme\Entities\EntityTaxonomy;
 use Vnetby\Wptheme\Entities\PostType;
 use Vnetby\Wptheme\Entities\Taxonomy;
 use Vnetby\Wptheme\Models\Model;
+use Vnetby\Wptheme\Models\ModelPostType;
+use Vnetby\Wptheme\Models\ModelTaxonomy;
 use Vnetby\Wptheme\Models\Post;
 use Vnetby\Wptheme\Models\Term;
 
@@ -109,7 +111,7 @@ trait ConfigEntities
 
     /**
      * - Получает текущий элемент сущности
-     * @return Post|Term|null
+     * @return ModelPostType|ModelTaxonomy|null
      */
     function getCurrentEntityElement()
     {
@@ -133,6 +135,40 @@ trait ConfigEntities
     function getEntities(): array
     {
         return $this->entities;
+    }
+
+
+    function getEntityElementByPostId(int $postId): ?ModelPostType
+    {
+        $postType = get_post_type($postId);
+        if (!$postType) {
+            return null;
+        }
+        if ($entity = $this->getEntity($postType)) {
+            return $entity->getModelClass()::getById($postId);
+        }
+        return null;
+    }
+
+
+    function getEntityElementByTermId(int $termId): ?ModelTaxonomy
+    {
+        /**
+         * @var \wpdb $wpdb
+         */
+        global $wpdb;
+
+        $res = $wpdb->get_results("SELECT `taxonomy` FROM `{$wpdb->term_taxonomy}` WHERE `term_id` = {$termId} LIMIT 1", ARRAY_A);
+
+        if (!$res || is_wp_error($res)) {
+            return null;
+        }
+
+        if ($entity = $this->getEntity($res[0]['taxonomy'])) {
+            return $entity->getModelClass()::getById($termId);
+        }
+
+        return null;
     }
 
 

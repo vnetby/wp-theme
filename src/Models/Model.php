@@ -2,6 +2,8 @@
 
 namespace Vnetby\Wptheme\Models;
 
+use Vnet\Router;
+use Vnetby\Schemaorg\Types\Thing\CreativeWork\WebPage\WebPage;
 use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Entities\Entity;
 use Vnetby\Wptheme\Seo;
@@ -257,21 +259,46 @@ abstract class Model
 
     function getSeoTitle(): string
     {
-        return Seo::getPostTitle($this->getId());
+        if ($this->isPost()) {
+            return Seo::getPostTitle($this->getId());
+        }
+        return Seo::getTermTitle($this->getId());
     }
 
     function getSeoDesc(): string
     {
-        return Seo::getPostDesc($this->getId());
+        if ($this->isPost()) {
+            return Seo::getPostDesc($this->getId());
+        }
+        return Seo::getTermDesc($this->getId());
     }
 
     function getSeoImageId(): int
     {
-        return Seo::getPostImageId($this->getId());
+        if ($this->isPost()) {
+            return Seo::getPostImageId($this->getId());
+        }
+        return Seo::getTermImageId($this->getId());
     }
 
     function getSeoImage(): string
     {
-        return Seo::getPostImage($this->getId());
+        if ($this->isPost()) {
+            return Seo::getPostImage($this->getId());
+        }
+        return Seo::getTermImage($this->getId());
+    }
+
+    function getSeoSchemaType(): \Vnetby\Schemaorg\Types\Type
+    {
+        if ($this->isPost()) {
+            return Seo::getPostSchemaType($this->getId());
+        }
+        return Seo::getTermSchemaType($this->getId());
+    }
+
+    function getCanonicalUrl(): string
+    {
+        return $this->getUrl();
     }
 }

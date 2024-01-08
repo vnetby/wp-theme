@@ -7,11 +7,10 @@ class ModelTaxonomy extends Model
 
     static function getCurrent()
     {
-        $obj = get_queried_object();
-        if (!$obj) {
-            return null;
+        if ($obj = get_queried_object()) {
+            return static::getByWpItem($obj);
         }
-        return static::getByWpItem($obj);
+        return null;
     }
 
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8479f850bc5dd1e0a06ecd016b03215c",
+    "content-hash": "84faccb1eaddeb09a83d106613c02f61",
     "packages": [
         {
             "name": "phpmailer/phpmailer",
@@ -168,6 +168,43 @@
                 "source": "https://github.com/vnetby/helpers/tree/1.0.5"
             },
             "time": "2024-01-06T20:11:56+00:00"
+        },
+        {
+            "name": "vnetby/schemaorg",
+            "version": "1.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vnetby/schemaorg.git",
+                "reference": "ec562cfdff428ade074b11bb05cfddf8aba45e64"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vnetby/schemaorg/zipball/ec562cfdff428ade074b11bb05cfddf8aba45e64",
+                "reference": "ec562cfdff428ade074b11bb05cfddf8aba45e64",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Vnetby\\Schemaorg\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Vadzim Kananovich",
+                    "email": "vadzim.kananovich.by@gmail.com"
+                }
+            ],
+            "description": "A small library for working with schema.org markup. Enables the generation of JSON-LD markup.",
+            "support": {
+                "issues": "https://github.com/vnetby/schemaorg/issues",
+                "source": "https://github.com/vnetby/schemaorg/tree/1.0.9"
+            },
+            "time": "2024-01-08T19:52:59+00:00"
         }
     ],
     "packages-dev": [],

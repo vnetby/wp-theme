@@ -2,6 +2,8 @@
 
 namespace Vnetby\Wptheme;
 
+use Vnetby\Schemaorg\Jsonld;
+use Vnetby\Schemaorg\Types\Thing\CreativeWork\WebPage\WebPage;
 use Vnetby\Wptheme\Front\Template;
 use Vnetby\Wptheme\Models\ModelTaxonomy;
 
@@ -32,8 +34,8 @@ class Seo
         });
 
         add_filter('get_canonical_url', function ($url) {
-            if ($canonical = static::getPageCanonical()) {
-                return $canonical;
+            if ($model = Container::getLoader()->getCurrentEntityElement()) {
+                return $model->getCanonicalUrl();
             }
             return $url;
         });
@@ -85,12 +87,22 @@ class Seo
      */
     protected static function generateJsonLd()
     {
-    }
+        if (is_404()) {
+            return;
+        }
 
+        if ($model = Container::getLoader()->getCurrentEntityElement()) {
+            if ($type = $model->getSeoSchemaType()) {
+                Jsonld::create($type)->render();
+            }
+            return;
+        }
 
-    protected static function getPageCanonical(): string
-    {
-        return Router::getCurrentUrl();
+        if (is_archive()) {
+            if ($type = self::getArchiveSchemaType($GLOBALS['wp_query']->query['post_type'])) {
+                Jsonld::create($type)->render();
+            }
+        }
     }
 
 
@@ -334,11 +346,8 @@ class Seo
         if (is_404()) {
             return Container::getLoader()->getNotFoundTitle();
         }
-        if (is_singular()) {
-            return self::getPostTitle($GLOBALS['post']->ID);
-        }
-        if (is_tax()) {
-            return self::getTermTitle(get_queried_object()->term_id);
+        if ($model = Container::getLoader()->getCurrentEntityElement()) {
+            return $model->getSeoTitle();
         }
         if (is_archive()) {
             return self::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
@@ -352,11 +361,8 @@ class Seo
      */
     static function getCurrentDesc(): string
     {
-        if (is_singular()) {
-            return self::getPostDesc($GLOBALS['post']->ID);
-        }
-        if (is_tax()) {
-            return self::getTermDesc(get_queried_object()->term_id);
+        if ($model = Container::getLoader()->getCurrentEntityElement()) {
+            return $model->getSeoDesc();
         }
         if (is_archive()) {
             return self::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
@@ -370,11 +376,8 @@ class Seo
      */
     static function getCurrentImage(): string
     {
-        if (is_singular()) {
-            return self::getPostImage($GLOBALS['post']->ID);
-        }
-        if (is_tax()) {
-            return self::getTermImage(get_queried_object()->term_id);
+        if ($model = Container::getLoader()->getCurrentEntityElement()) {
+            return $model->getSeoImage();
         }
         if (is_archive()) {
             return self::getArchiveImage($GLOBALS['wp_query']->query['post_type']);
@@ -438,6 +441,17 @@ class Seo
         return (int)(self::getTermSeoMeta($termId)['image'] ?? 0);
     }
 
+    static function getTermSchemaType(int $termId): \Vnetby\Schemaorg\Types\Type
+    {
+        $page = new WebPage;
+        $page->setName(self::getTermTitle($termId));
+        $page->setDescription(self::getTermDesc($termId));
+        if ($img = self::getTermImage($termId)) {
+            $page->setImage($img);
+        }
+        return $page;
+    }
+
     ///////////////////////////////////////////////////////////////
     //                      ТИПЫ ПОСТОВ
     ///////////////////////////////////////////////////////////////
@@ -491,6 +505,19 @@ class Seo
     static function getPostMetaImageId(int $postId): int
     {
         return (int)(self::getPostSeoMeta($postId)['image'] ?? 0);
+    }
+
+    static function getPostSchemaType(int $postId): \Vnetby\Schemaorg\Types\Type
+    {
+        $page = new WebPage;
+        $page->setName(self::getPostTitle($postId));
+        $page->setDescription(self::getPostDesc($postId));
+        $page->setDateCreated(get_the_date('Y-m-d H:i:s', $postId));
+        $page->setDateModified(get_the_modified_date('Y-m-d H:i:s', $postId));
+        if ($img = self::getPostImage($postId)) {
+            $page->setImage($img);
+        }
+        return $page;
     }
 
     ///////////////////////////////////////////////////////////////
@@ -568,5 +595,16 @@ class Seo
             return wp_get_attachment_image_url($img, 'full');
         }
         return '';
+    }
+
+    static function getArchiveSchemaType(string $postType): \Vnetby\Schemaorg\Types\Type
+    {
+        $type = new WebPage;
+        $type->setName(self::getArchiveTitle($postType));
+        $type->setDescription(self::getArchiveDesc($postType));
+        if ($img = self::getArchiveImage($postType)) {
+            $type->setImage($img);
+        }
+        return $type;
     }
 }
