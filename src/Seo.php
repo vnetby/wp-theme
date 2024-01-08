@@ -71,7 +71,7 @@ class Seo
             ],
             [
                 'property' => 'og:site_name',
-                'content' => get_bloginfo('description')
+                'content' => get_bloginfo('title')
             ]
         ];
 
@@ -352,7 +352,7 @@ class Seo
         if (is_archive()) {
             return static::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
         }
-        return '';
+        return get_bloginfo('title');
     }
 
     /**
@@ -367,7 +367,7 @@ class Seo
         if (is_archive()) {
             return static::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
         }
-        return '';
+        return get_bloginfo('description');
     }
 
     /**
