@@ -47,15 +47,15 @@ class Seo
         $metaTags = [
             [
                 'property' => 'og:title',
-                'content' => self::getCurrentTitle()
+                'content' => static::getCurrentTitle()
             ],
             [
                 'property' => 'og:description',
-                'content' => self::getCurrentDesc()
+                'content' => static::getCurrentDesc()
             ],
             [
                 'property' => 'og:image',
-                'content' => self::getCurrentImage()
+                'content' => static::getCurrentImage()
             ],
             [
                 'property' => 'og:locale',
@@ -99,7 +99,7 @@ class Seo
         }
 
         if (is_archive()) {
-            if ($type = self::getArchiveSchemaType($GLOBALS['wp_query']->query['post_type'])) {
+            if ($type = static::getArchiveSchemaType($GLOBALS['wp_query']->query['post_type'])) {
                 Jsonld::create($type)->render();
             }
         }
@@ -127,9 +127,9 @@ class Seo
                 echo __('Приоритетность картинки: СЕО картинка; картинка поста; картинка архива; картинка по умолчанию.', 'vnet');
                 echo '</p>';
                 Template::theFile(Container::getLoader()->libPath('templates/seo-metabox.php'), [
-                    'title' => self::getPostMetaTitle($post->ID),
-                    'desc' => self::getPostMetaDesc($post->ID),
-                    'image' => self::getPostMetaImageId($post->ID),
+                    'title' => static::getPostMetaTitle($post->ID),
+                    'desc' => static::getPostMetaDesc($post->ID),
+                    'image' => static::getPostMetaImageId($post->ID),
                     'name_title' => 'vnet-seo-title',
                     'name_desc' => 'vnet-seo-desc',
                     'name_image' => 'vnet-seo-image'
@@ -161,7 +161,7 @@ class Seo
 
         // настройки сео терминов
 
-        $taxes = self::getPublicTaxonomies();
+        $taxes = static::getPublicTaxonomies();
 
         foreach ($taxes as $tax) {
             add_action("{$tax->name}_add_form_fields", function () {
@@ -196,9 +196,9 @@ class Seo
                 echo __('Приоритетность картинки: СЕО картинка; картинка по умолчанию.', 'vnet');
                 echo '</p>';
                 Template::theFile(Container::getLoader()->libPath('templates/seo-metabox.php'), [
-                    'title' => self::getTermMetaTitle($term->term_id),
-                    'desc' => self::getTermMetaDesc($term->term_id),
-                    'image' => self::getTermMetaImageId($term->term_id),
+                    'title' => static::getTermMetaTitle($term->term_id),
+                    'desc' => static::getTermMetaDesc($term->term_id),
+                    'image' => static::getTermMetaImageId($term->term_id),
                     'name_title' => 'vnet-seo-term-title',
                     'name_desc' => 'vnet-seo-term-desc',
                     'name_image' => 'vnet-seo-term-image'
@@ -261,7 +261,7 @@ class Seo
 
     static function isPublicPostType(string $postType): bool
     {
-        $postTypes = self::getPublicPostTypes();
+        $postTypes = static::getPublicPostTypes();
         foreach ($postTypes as $postType) {
             if ($postType->name === $postType->name) {
                 return true;
@@ -298,7 +298,7 @@ class Seo
      */
     static function saveOptionsFromRequest()
     {
-        $postTypes = self::getPostTypesWithArchives();
+        $postTypes = static::getPostTypesWithArchives();
         $data = [
             'archiveCommonTitle' => $_REQUEST['vnet-seo-common-archive-title'] ?? '',
             'archiveCommonDesc' => $_REQUEST['vnet-seo-common-archive-desc'] ?? '',
@@ -350,7 +350,7 @@ class Seo
             return $model->getSeoTitle();
         }
         if (is_archive()) {
-            return self::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
+            return static::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
         }
         return '';
     }
@@ -365,7 +365,7 @@ class Seo
             return $model->getSeoDesc();
         }
         if (is_archive()) {
-            return self::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
+            return static::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
         }
         return '';
     }
@@ -380,7 +380,7 @@ class Seo
             return $model->getSeoImage();
         }
         if (is_archive()) {
-            return self::getArchiveImage($GLOBALS['wp_query']->query['post_type']);
+            return static::getArchiveImage($GLOBALS['wp_query']->query['post_type']);
         }
         return '';
     }
@@ -391,7 +391,7 @@ class Seo
 
     static function getTermTitle(int $termId): string
     {
-        if ($title = self::getTermMetaTitle($termId)) {
+        if ($title = static::getTermMetaTitle($termId)) {
             return $title;
         }
         $term = ModelTaxonomy::getById($termId);
@@ -403,7 +403,7 @@ class Seo
 
     static function getTermDesc(int $termId): string
     {
-        if ($desc = self::getTermMetaDesc($termId)) {
+        if ($desc = static::getTermMetaDesc($termId)) {
             return $desc;
         }
         $term = ModelTaxonomy::getById($termId);
@@ -415,12 +415,12 @@ class Seo
 
     static function getTermImageId(int $termId): int
     {
-        return self::getTermMetaImageId($termId);
+        return static::getTermMetaImageId($termId);
     }
 
     static function getTermImage(int $termId): string
     {
-        if ($img = self::getTermMetaImageId($termId)) {
+        if ($img = static::getTermMetaImageId($termId)) {
             return wp_get_attachment_image_url($img, 'full');
         }
         return '';
@@ -428,25 +428,25 @@ class Seo
 
     static function getTermMetaTitle(int $termId): string
     {
-        return self::getTermSeoMeta($termId)['title'] ?? '';
+        return static::getTermSeoMeta($termId)['title'] ?? '';
     }
 
     static function getTermMetaDesc(int $termId): string
     {
-        return self::getTermSeoMeta($termId)['desc'] ?? '';
+        return static::getTermSeoMeta($termId)['desc'] ?? '';
     }
 
     static function getTermMetaImageId(int $termId): int
     {
-        return (int)(self::getTermSeoMeta($termId)['image'] ?? 0);
+        return (int)(static::getTermSeoMeta($termId)['image'] ?? 0);
     }
 
     static function getTermSchemaType(int $termId): \Vnetby\Schemaorg\Types\Type
     {
         $page = new WebPage;
-        $page->setName(self::getTermTitle($termId));
-        $page->setDescription(self::getTermDesc($termId));
-        if ($img = self::getTermImage($termId)) {
+        $page->setName(static::getTermTitle($termId));
+        $page->setDescription(static::getTermDesc($termId));
+        if ($img = static::getTermImage($termId)) {
             $page->setImage($img);
         }
         return $page;
@@ -458,7 +458,7 @@ class Seo
 
     static function getPostTitle(int $postId): string
     {
-        if ($title = self::getPostMetaTitle($postId)) {
+        if ($title = static::getPostMetaTitle($postId)) {
             return $title;
         }
         return get_the_title($postId);
@@ -466,7 +466,7 @@ class Seo
 
     static function getPostDesc(int $postId): string
     {
-        if ($desc = self::getPostMetaDesc($postId)) {
+        if ($desc = static::getPostMetaDesc($postId)) {
             return $desc;
         }
         return get_the_excerpt($postId);
@@ -474,18 +474,18 @@ class Seo
 
     static function getPostImageId(int $postId): int
     {
-        if ($img = self::getPostMetaImageId($postId)) {
+        if ($img = static::getPostMetaImageId($postId)) {
             return $img;
         }
         if ($img = get_post_thumbnail_id($postId)) {
             return $img;
         }
-        return self::getOptionCommonImageId();
+        return static::getOptionCommonImageId();
     }
 
     static function getPostImage(int $postId): string
     {
-        $imgId = self::getPostImageId($postId);
+        $imgId = static::getPostImageId($postId);
         if (!$imgId) {
             return '';
         }
@@ -494,27 +494,27 @@ class Seo
 
     static function getPostMetaTitle(int $postId): string
     {
-        return self::getPostSeoMeta($postId)['title'] ?? '';
+        return static::getPostSeoMeta($postId)['title'] ?? '';
     }
 
     static function getPostMetaDesc(int $postId): string
     {
-        return self::getPostSeoMeta($postId)['desc'] ?? '';
+        return static::getPostSeoMeta($postId)['desc'] ?? '';
     }
 
     static function getPostMetaImageId(int $postId): int
     {
-        return (int)(self::getPostSeoMeta($postId)['image'] ?? 0);
+        return (int)(static::getPostSeoMeta($postId)['image'] ?? 0);
     }
 
     static function getPostSchemaType(int $postId): \Vnetby\Schemaorg\Types\Type
     {
         $page = new WebPage;
-        $page->setName(self::getPostTitle($postId));
-        $page->setDescription(self::getPostDesc($postId));
+        $page->setName(static::getPostTitle($postId));
+        $page->setDescription(static::getPostDesc($postId));
         $page->setDateCreated(get_the_date('Y-m-d H:i:s', $postId));
         $page->setDateModified(get_the_modified_date('Y-m-d H:i:s', $postId));
-        if ($img = self::getPostImage($postId)) {
+        if ($img = static::getPostImage($postId)) {
             $page->setImage($img);
         }
         return $page;
@@ -532,66 +532,66 @@ class Seo
 
     static function getPostTypeOptions(string $postType): array
     {
-        return self::getOptions()['post_type_' . $postType] ?? [];
+        return static::getOptions()['post_type_' . $postType] ?? [];
     }
 
     static function getOptionArchiveTitle(string $postType): string
     {
-        return self::getPostTypeOptions($postType)['title'] ?? '';
+        return static::getPostTypeOptions($postType)['title'] ?? '';
     }
 
     static function getOptionArchiveDesc(string $postType): string
     {
-        return self::getPostTypeOptions($postType)['desc'] ?? '';
+        return static::getPostTypeOptions($postType)['desc'] ?? '';
     }
 
     static function getOptionArchiveImageId(string $postType): int
     {
-        return (int)(self::getPostTypeOptions($postType)['image'] ?? 0);
+        return (int)(static::getPostTypeOptions($postType)['image'] ?? 0);
     }
 
     static function getOptionCommonArchiveTitle(): string
     {
-        return self::getOptions()['archiveCommonTitle'] ?? '';
+        return static::getOptions()['archiveCommonTitle'] ?? '';
     }
 
     static function getOptionCommonArchiveDesc(): string
     {
-        return self::getOptions()['archiveCommonDesc'] ?? '';
+        return static::getOptions()['archiveCommonDesc'] ?? '';
     }
 
     static function getOptionCommonImageId(): int
     {
-        return (int)(self::getOptions()['commonImage'] ?? 0);
+        return (int)(static::getOptions()['commonImage'] ?? 0);
     }
 
     static function getArchiveTitle(string $postType): string
     {
-        if ($title = self::getOptionArchiveTitle($postType)) {
+        if ($title = static::getOptionArchiveTitle($postType)) {
             return $title;
         }
-        return self::getOptionCommonArchiveTitle();
+        return static::getOptionCommonArchiveTitle();
     }
 
     static function getArchiveDesc(string $postType): string
     {
-        if ($desc = self::getOptionArchiveDesc($postType)) {
+        if ($desc = static::getOptionArchiveDesc($postType)) {
             return $desc;
         }
-        return self::getOptionCommonArchiveDesc();
+        return static::getOptionCommonArchiveDesc();
     }
 
     static function getArchiveImageId(string $postType): int
     {
-        if ($img = self::getOptionArchiveImageId($postType)) {
+        if ($img = static::getOptionArchiveImageId($postType)) {
             return $img;
         }
-        return self::getOptionCommonImageId();
+        return static::getOptionCommonImageId();
     }
 
     static function getArchiveImage(string $postType): string
     {
-        if ($img = self::getArchiveImageId($postType)) {
+        if ($img = static::getArchiveImageId($postType)) {
             return wp_get_attachment_image_url($img, 'full');
         }
         return '';
@@ -600,9 +600,9 @@ class Seo
     static function getArchiveSchemaType(string $postType): \Vnetby\Schemaorg\Types\Type
     {
         $type = new WebPage;
-        $type->setName(self::getArchiveTitle($postType));
-        $type->setDescription(self::getArchiveDesc($postType));
-        if ($img = self::getArchiveImage($postType)) {
+        $type->setName(static::getArchiveTitle($postType));
+        $type->setDescription(static::getArchiveDesc($postType));
+        if ($img = static::getArchiveImage($postType)) {
             $type->setImage($img);
         }
         return $type;

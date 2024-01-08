@@ -2,11 +2,8 @@
 
 namespace Vnetby\Wptheme\Models;
 
-use Vnet\Router;
-use Vnetby\Schemaorg\Types\Thing\CreativeWork\WebPage\WebPage;
 use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Entities\Entity;
-use Vnetby\Wptheme\Seo;
 
 abstract class Model
 {
@@ -69,22 +66,22 @@ abstract class Model
 
     static function getArchiveSeoTitle(): string
     {
-        return Seo::getArchiveTitle(static::getKey());
+        return Container::getClassSeo()::getArchiveTitle(static::getKey());
     }
 
     static function getArchiveSeoDesc(): string
     {
-        return Seo::getArchiveDesc(static::getKey());
+        return Container::getClassSeo()::getArchiveDesc(static::getKey());
     }
 
     static function getArchiveSeoImageId(): int
     {
-        return Seo::getArchiveImageId(static::getKey());
+        return Container::getClassSeo()::getArchiveImageId(static::getKey());
     }
 
     static function getArchiveSeoImage(): string
     {
-        return Seo::getArchiveImage(static::getKey());
+        return Container::getClassSeo()::getArchiveImage(static::getKey());
     }
 
 
@@ -260,41 +257,41 @@ abstract class Model
     function getSeoTitle(): string
     {
         if ($this->isPost()) {
-            return Seo::getPostTitle($this->getId());
+            return Container::getClassSeo()::getPostTitle($this->getId());
         }
-        return Seo::getTermTitle($this->getId());
+        return Container::getClassSeo()::getTermTitle($this->getId());
     }
 
     function getSeoDesc(): string
     {
         if ($this->isPost()) {
-            return Seo::getPostDesc($this->getId());
+            return Container::getClassSeo()::getPostDesc($this->getId());
         }
-        return Seo::getTermDesc($this->getId());
+        return Container::getClassSeo()::getTermDesc($this->getId());
     }
 
     function getSeoImageId(): int
     {
         if ($this->isPost()) {
-            return Seo::getPostImageId($this->getId());
+            return Container::getClassSeo()::getPostImageId($this->getId());
         }
-        return Seo::getTermImageId($this->getId());
+        return Container::getClassSeo()::getTermImageId($this->getId());
     }
 
     function getSeoImage(): string
     {
         if ($this->isPost()) {
-            return Seo::getPostImage($this->getId());
+            return Container::getClassSeo()::getPostImage($this->getId());
         }
-        return Seo::getTermImage($this->getId());
+        return Container::getClassSeo()::getTermImage($this->getId());
     }
 
     function getSeoSchemaType(): \Vnetby\Schemaorg\Types\Type
     {
         if ($this->isPost()) {
-            return Seo::getPostSchemaType($this->getId());
+            return Container::getClassSeo()::getPostSchemaType($this->getId());
         }
-        return Seo::getTermSchemaType($this->getId());
+        return Container::getClassSeo()::getTermSchemaType($this->getId());
     }
 
     function getCanonicalUrl(): string
