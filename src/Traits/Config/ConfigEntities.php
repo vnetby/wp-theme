@@ -102,8 +102,10 @@ trait ConfigEntities
         if (is_singular() || is_front_page()) {
             return get_post_type();
         }
-        if ($term = get_queried_object()) {
-            return $term->taxonomy;
+        if (is_tax()) {
+            if ($term = get_queried_object()) {
+                return $term->taxonomy;
+            }
         }
         return '';
     }
