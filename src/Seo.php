@@ -617,18 +617,24 @@ class Seo
 
     static function getDefaultSchemaType(string $title = '', string $desc = '', string $image = ''): Type
     {
+        return static::getWebPageSchemaType($title, $desc, $image);
+    }
+
+
+    static function getWebPageSchemaType(string $title = '', string $desc = '', string $image = ''): WebPage
+    {
         $page = new WebPage;
 
         if (!$title) {
-            $title = static::getCurrentTitle();
+            $title = self::getCurrentTitle();
         }
 
         if (!$desc) {
-            $desc = static::getCurrentDesc();
+            $desc = self::getCurrentDesc();
         }
 
         if (!$image) {
-            $image = static::getCurrentImage();
+            $image = self::getCurrentImage();
         }
 
         if ($title) {
