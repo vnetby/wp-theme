@@ -8,6 +8,8 @@ use Vnetby\Schemaorg\Types\Type;
 use Vnetby\Wptheme\Front\Template;
 use Vnetby\Wptheme\Models\ModelTaxonomy;
 
+use function PHPSTORM_META\map;
+
 class Seo
 {
 
@@ -453,15 +455,13 @@ class Seo
         return (int)(static::getTermSeoMeta($termId)['image'] ?? 0);
     }
 
-    static function getTermSchemaType(int $termId): \Vnetby\Schemaorg\Types\Type
+    static function getTermSchemaType(int $termId): WebPage
     {
-        $page = new WebPage;
-        $page->setName(static::getTermTitle($termId));
-        $page->setDescription(static::getTermDesc($termId));
-        if ($img = static::getTermImage($termId)) {
-            $page->setImage($img);
-        }
-        return $page;
+        return self::getDefaultSchemaType(
+            self::getTermTitle($termId),
+            self::getTermDesc($termId),
+            self::getTermImage($termId)
+        );
     }
 
     ///////////////////////////////////////////////////////////////
@@ -519,17 +519,13 @@ class Seo
         return (int)(static::getPostSeoMeta($postId)['image'] ?? 0);
     }
 
-    static function getPostSchemaType(int $postId): \Vnetby\Schemaorg\Types\Type
+    static function getPostSchemaType(int $postId): WebPage
     {
-        $page = new WebPage;
-        $page->setName(static::getPostTitle($postId));
-        $page->setDescription(static::getPostDesc($postId));
-        $page->setDateCreated(get_the_date('Y-m-d H:i:s', $postId));
-        $page->setDateModified(get_the_modified_date('Y-m-d H:i:s', $postId));
-        if ($img = static::getPostImage($postId)) {
-            $page->setImage($img);
-        }
-        return $page;
+        return self::getDefaultSchemaType(
+            static::getPostTitle($postId),
+            static::getPostDesc($postId),
+            static::getPostImage($postId)
+        );
     }
 
     ///////////////////////////////////////////////////////////////
@@ -609,14 +605,44 @@ class Seo
         return '';
     }
 
-    static function getArchiveSchemaType(string $postType): \Vnetby\Schemaorg\Types\Type
+    static function getArchiveSchemaType(string $postType): Type
     {
-        $type = new WebPage;
-        $type->setName(static::getArchiveTitle($postType));
-        $type->setDescription(static::getArchiveDesc($postType));
-        if ($img = static::getArchiveImage($postType)) {
-            $type->setImage($img);
+        return self::getDefaultSchemaType(
+            self::getArchiveTitle($postType),
+            self::getArchiveDesc($postType),
+            self::getArchiveImage($postType)
+        );
+    }
+
+
+    static function getDefaultSchemaType(string $title = '', string $desc = '', string $image = ''): Type
+    {
+        $page = new WebPage;
+
+        if (!$title) {
+            $title = self::getCurrentTitle();
         }
-        return $type;
+
+        if (!$desc) {
+            $desc = self::getCurrentDesc();
+        }
+
+        if (!$image) {
+            $image = self::getCurrentImage();
+        }
+
+        if ($title) {
+            $page->setName($title);
+        }
+
+        if ($desc) {
+            $page->setDescription($desc);
+        }
+
+        if ($image) {
+            $page->setImage($image);
+        }
+
+        return $page;
     }
 }
