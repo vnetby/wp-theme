@@ -4,6 +4,8 @@ namespace Vnetby\Wptheme;
 
 use Vnetby\Wptheme\Ajax\Response;
 use Vnetby\Wptheme\Front\Template;
+use Vnetby\Wptheme\Models\ModelPostType;
+use Vnetby\Wptheme\Models\ModelTaxonomy;
 
 class Container
 {
@@ -13,6 +15,8 @@ class Container
     private static string $classTemplate = Template::class;
     private static string $classMailer = Mailer::class;
     private static string $classSeo = Seo::class;
+    private static string $classModelPostType = ModelPostType::class;
+    private static string $classModelTaxonomy = ModelTaxonomy::class;
 
 
     static function getLoader(): Loader
@@ -106,5 +110,37 @@ class Container
     static function getClassSeo(): string
     {
         return self::$classSeo;
+    }
+
+    /**
+     * @param class-string<ModelPostType> $classModelPostType
+     */
+    static function setCassModelPostType(string $classModelPostType)
+    {
+        self::$classModelPostType = $classModelPostType;
+    }
+
+    /**
+     * @return class-string<ModelPostType>
+     */
+    static function getClassModelPostType()
+    {
+        return self::$classModelPostType;
+    }
+
+    /**
+     * @param class-string<ModelTaxonomy> $classModelTaxonomy
+     */
+    static function setClassModelTaxonomy(string $classModelTaxonomy)
+    {
+        self::$classModelTaxonomy = $classModelTaxonomy;
+    }
+
+    /**
+     * @return class-string<ModelTaxonomy>
+     */
+    static function getClassModelTaxonomy(): string
+    {
+        return self::$classModelTaxonomy;
     }
 }

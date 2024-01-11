@@ -129,4 +129,14 @@ class ModelPostType extends Model
     {
         return $this->getWpItem()->post_status === 'publish';
     }
+
+
+    function isFrontPage(): bool
+    {
+        $id = (int)get_option('page_on_front', 0);
+        if (!$id) {
+            return false;
+        }
+        return $id === $this->getId();
+    }
 }

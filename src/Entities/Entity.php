@@ -3,11 +3,11 @@
 namespace Vnetby\Wptheme\Entities;
 
 use Error;
+use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Models\Model;
 use Vnetby\Wptheme\Models\ModelPostType;
 use Vnetby\Wptheme\Models\ModelTaxonomy;
-use Vnetby\Wptheme\Models\Post;
-use Vnetby\Wptheme\Models\Term;
+
 
 abstract class Entity
 {
@@ -43,7 +43,7 @@ abstract class Entity
     {
         $this->key = $key;
         if (!isset($this->model)) {
-            $this->model = $this->isPostType() ? ModelPostType::class : ModelTaxonomy::class;
+            $this->model = $this->isPostType() ? Container::getClassModelPostType() : Container::getClassModelTaxonomy();
         }
     }
 
