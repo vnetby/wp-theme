@@ -4,6 +4,7 @@ namespace Vnetby\Wptheme;
 
 use Vnetby\Schemaorg\Jsonld;
 use Vnetby\Schemaorg\Types\Thing\CreativeWork\WebPage\WebPage;
+use Vnetby\Schemaorg\Types\Type;
 use Vnetby\Wptheme\Front\Template;
 use Vnetby\Wptheme\Models\ModelTaxonomy;
 
@@ -213,6 +214,30 @@ class Seo
                 update_term_meta($termId, 'vnet_seo', serialize(['title' => $title, 'desc' => $desc, 'image' => $img]));
             });
         }
+    }
+
+
+    static function getCurrentSchemaType(): ?Type
+    {
+        if (is_404()) {
+            return null;
+        }
+
+        if ($model = Container::getLoader()->getCurrentEntityElement()) {
+            if ($type = $model->getSeoSchemaType()) {
+                return $type;
+            }
+            return null;
+        }
+
+        if (is_archive()) {
+            if ($type = static::getArchiveSchemaType($GLOBALS['wp_query']->query['post_type'])) {
+                return $type;
+            }
+            return null;
+        }
+
+        return null;
     }
 
 
