@@ -115,7 +115,7 @@ class Container
     /**
      * @param class-string<ModelPostType> $classModelPostType
      */
-    static function setCassModelPostType(string $classModelPostType)
+    static function setClassModelPostType(string $classModelPostType)
     {
         self::$classModelPostType = $classModelPostType;
     }
