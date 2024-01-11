@@ -88,21 +88,8 @@ class Seo
      */
     protected static function generateJsonLd()
     {
-        if (is_404()) {
-            return;
-        }
-
-        if ($model = Container::getLoader()->getCurrentEntityElement()) {
-            if ($type = $model->getSeoSchemaType()) {
-                Jsonld::create($type)->render();
-            }
-            return;
-        }
-
-        if (is_archive()) {
-            if ($type = static::getArchiveSchemaType($GLOBALS['wp_query']->query['post_type'])) {
-                Jsonld::create($type)->render();
-            }
+        if ($type = self::getCurrentSchemaType()) {
+            Jsonld::create($type)->render();
         }
     }
 
