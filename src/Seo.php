@@ -90,7 +90,7 @@ class Seo
      */
     protected static function generateJsonLd()
     {
-        if ($type = self::getCurrentSchemaType()) {
+        if ($type = static::getCurrentSchemaType()) {
             Jsonld::create($type)->render();
         }
     }
@@ -457,10 +457,10 @@ class Seo
 
     static function getTermSchemaType(int $termId): WebPage
     {
-        return self::getDefaultSchemaType(
-            self::getTermTitle($termId),
-            self::getTermDesc($termId),
-            self::getTermImage($termId)
+        return static::getDefaultSchemaType(
+            static::getTermTitle($termId),
+            static::getTermDesc($termId),
+            static::getTermImage($termId)
         );
     }
 
@@ -521,7 +521,7 @@ class Seo
 
     static function getPostSchemaType(int $postId): WebPage
     {
-        return self::getDefaultSchemaType(
+        return static::getDefaultSchemaType(
             static::getPostTitle($postId),
             static::getPostDesc($postId),
             static::getPostImage($postId)
@@ -607,10 +607,10 @@ class Seo
 
     static function getArchiveSchemaType(string $postType): Type
     {
-        return self::getDefaultSchemaType(
-            self::getArchiveTitle($postType),
-            self::getArchiveDesc($postType),
-            self::getArchiveImage($postType)
+        return static::getDefaultSchemaType(
+            static::getArchiveTitle($postType),
+            static::getArchiveDesc($postType),
+            static::getArchiveImage($postType)
         );
     }
 
@@ -620,15 +620,15 @@ class Seo
         $page = new WebPage;
 
         if (!$title) {
-            $title = self::getCurrentTitle();
+            $title = static::getCurrentTitle();
         }
 
         if (!$desc) {
-            $desc = self::getCurrentDesc();
+            $desc = static::getCurrentDesc();
         }
 
         if (!$image) {
-            $image = self::getCurrentImage();
+            $image = static::getCurrentImage();
         }
 
         if ($title) {
