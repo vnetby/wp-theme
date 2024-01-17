@@ -191,6 +191,7 @@ abstract class Entity
 
     /**
      * - Явлаяется ли страница архивом текущего типа поста или таксономии
+     * - Архивом может быть только тип поста
      * @return boolean
      */
     static function isArchive(): bool
@@ -198,7 +199,7 @@ abstract class Entity
         if (static::isPostType()) {
             return is_post_type_archive(static::getKey());
         }
-        return is_tax(static::getKey());
+        return false;
     }
 
 
@@ -288,7 +289,13 @@ abstract class Entity
 
     function getMeta(string $key, bool $single = true)
     {
-        return static::isPostType() ? get_post_meta($this->getId(), $key, $single) : get_term_meta($this->getId(), $key, $single);
+        if (static::isPostType()) {
+            return get_post_meta($this->getId(), $key, $single);
+        }
+        if (static::isTaxonomy()) {
+            return get_term_meta($this->getId(), $key, $single);
+        }
+        return null;
     }
 
 
@@ -297,7 +304,8 @@ abstract class Entity
         if (!function_exists('get_field')) {
             return $def;
         }
-        return get_field($selector, $this->wpItem, true);
+        $res = get_field($selector, $this->wpItem, true);
+        return $res !== null ? $res : $def;
     }
 
 
@@ -316,7 +324,10 @@ abstract class Entity
             $val = get_term_meta($this->getId(), 'tax_position', true);
             return $val ? (int)$val : 0;
         }
-        return (int)$this->wpItem->menu_order;
+        if (static::isPostType()) {
+            return (int)$this->wpItem->menu_order;
+        }
+        return 0;
     }
 
 
@@ -325,7 +336,10 @@ abstract class Entity
         if (static::isPostType()) {
             return update_post_meta($this->getId(), $key, $value, $prevValue);
         }
-        return update_term_meta($this->getId(), $key, $value, $prevValue);
+        if (static::isTaxonomy()) {
+            return update_term_meta($this->getId(), $key, $value, $prevValue);
+        }
+        return false;
     }
 
 
@@ -334,7 +348,10 @@ abstract class Entity
         if (static::isPostType()) {
             return delete_post_meta($this->getId(), $key, $value);
         }
-        return delete_term_meta($this->getId(), $key, $value);
+        if (static::isTaxonomy()) {
+            return delete_term_meta($this->getId(), $key, $value);
+        }
+        return false;
     }
 
     /**
@@ -343,7 +360,13 @@ abstract class Entity
      */
     static function isSingle(): bool
     {
-        return is_singular(static::getKey());
+        if (static::isPostType()) {
+            return is_singular(static::getKey());
+        }
+        if (static::isTaxonomy()) {
+            return is_tax(static::getKey());
+        }
+        return false;
     }
 
     function getSeoTitle(): string
@@ -351,7 +374,10 @@ abstract class Entity
         if (static::isPostType()) {
             return Container::getClassSeo()::getPostTitle($this->getId());
         }
-        return Container::getClassSeo()::getTermTitle($this->getId());
+        if (static::isTaxonomy()) {
+            return Container::getClassSeo()::getTermTitle($this->getId());
+        }
+        return '';
     }
 
     function getSeoDesc(): string
@@ -359,7 +385,10 @@ abstract class Entity
         if (static::isPostType()) {
             return Container::getClassSeo()::getPostDesc($this->getId());
         }
-        return Container::getClassSeo()::getTermDesc($this->getId());
+        if (static::isTaxonomy()) {
+            return Container::getClassSeo()::getTermDesc($this->getId());
+        }
+        return '';
     }
 
     function getSeoImageId(): int
@@ -367,7 +396,10 @@ abstract class Entity
         if (static::isPostType()) {
             return Container::getClassSeo()::getPostImageId($this->getId());
         }
-        return Container::getClassSeo()::getTermImageId($this->getId());
+        if (static::isTaxonomy()) {
+            return Container::getClassSeo()::getTermImageId($this->getId());
+        }
+        return 0;
     }
 
     function getSeoImage(): string
@@ -375,7 +407,10 @@ abstract class Entity
         if (static::isPostType()) {
             return Container::getClassSeo()::getPostImage($this->getId());
         }
-        return Container::getClassSeo()::getTermImage($this->getId());
+        if (static::isTaxonomy()) {
+            return Container::getClassSeo()::getTermImage($this->getId());
+        }
+        return '';
     }
 
     function getSeoSchemaType(): \Vnetby\Schemaorg\Types\Type
@@ -383,7 +418,10 @@ abstract class Entity
         if (static::isPostType()) {
             return Container::getClassSeo()::getPostSchemaType($this->getId());
         }
-        return Container::getClassSeo()::getTermSchemaType($this->getId());
+        if (static::isTaxonomy()) {
+            return Container::getClassSeo()::getTermSchemaType($this->getId());
+        }
+        return '';
     }
 
     function getCanonicalUrl(): string
