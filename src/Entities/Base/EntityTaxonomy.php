@@ -44,8 +44,10 @@ abstract class EntityTaxonomy extends Entity
             }
             $query = new \WP_Term_Query($filter);
             $res = [];
-            foreach ($query->terms as $term) {
-                $res[] = static::getByWpItem($term);
+            if ($query->terms) {
+                foreach ($query->terms as $term) {
+                    $res[] = static::getByWpItem($term);
+                }
             }
             return new DbResult($res, $page, $perPage, -1);
         });
