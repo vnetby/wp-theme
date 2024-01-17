@@ -10,6 +10,7 @@ abstract class Entity
 {
     const CLASS_ADMIN = '';
     const KEY = '';
+    const TTL_CACHE = 0;
 
     /**
      * @var Admin
@@ -94,15 +95,17 @@ abstract class Entity
      */
     static function getById(int $id)
     {
-        if (static::isPostType()) {
-            $post = get_post($id);
-            return $post && !is_wp_error($post) ? static::getByWpItem($post) : null;
-        }
-        if (static::isTaxonomy()) {
-            $term = get_term_by('id', $id, static::getKey());
-            return $term && !is_wp_error($term) ? static::getByWpItem($term) : null;
-        }
-        return null;
+        return static::fetchCache(function () use ($id) {
+            if (static::isPostType()) {
+                $post = get_post($id);
+                return $post && !is_wp_error($post) ? static::getByWpItem($post) : null;
+            }
+            if (static::isTaxonomy()) {
+                $term = get_term_by('id', $id, static::getKey());
+                return $term && !is_wp_error($term) ? static::getByWpItem($term) : null;
+            }
+            return null;
+        });
     }
 
     /**
@@ -114,27 +117,39 @@ abstract class Entity
     {
         return static::fetchCache(function () use ($wpItem) {
             return new static($wpItem);
-        }, ($wpItem instanceof \WP_Post ? $wpItem->ID : $wpItem->term_id));
+        });
     }
 
     static function getArchiveSeoTitle(): string
     {
-        return Container::getClassSeo()::getArchiveTitle(static::getKey());
+        if (static::isPostType()) {
+            return Container::getClassSeo()::getArchiveTitle(static::getKey());
+        }
+        return '';
     }
 
     static function getArchiveSeoDesc(): string
     {
-        return Container::getClassSeo()::getArchiveDesc(static::getKey());
+        if (static::isPostType()) {
+            return Container::getClassSeo()::getArchiveDesc(static::getKey());
+        }
+        return '';
     }
 
     static function getArchiveSeoImageId(): int
     {
-        return Container::getClassSeo()::getArchiveImageId(static::getKey());
+        if (static::isPostType()) {
+            return Container::getClassSeo()::getArchiveImageId(static::getKey());
+        }
+        return 0;
     }
 
     static function getArchiveSeoImage(): string
     {
-        return Container::getClassSeo()::getArchiveImage(static::getKey());
+        if (static::isPostType()) {
+            return Container::getClassSeo()::getArchiveImage(static::getKey());
+        }
+        return '';
     }
 
     protected static function getWpDb(): \wpdb
@@ -373,14 +388,25 @@ abstract class Entity
         return '';
     }
 
-    protected static function fetchCache(callable $fn, int $ttl = 0, $keySuffix = '')
+    protected static function fetchCache(callable $fn, $keySuffix = '', ?int $ttl = null)
     {
-        $callFrom = debug_backtrace()[1]['function'] ?? '';
-        $class = get_called_class();
-        $fullKey = $class . ':' . $callFrom;
-        if ($keySuffix) {
-            $fullKey .= ':' . $keySuffix;
+        $debug = debug_backtrace();
+
+        $callFrom = $debug[1]['function'] ?? '';
+
+        if (!$keySuffix) {
+            $args = $debug[1]['args'] ?? [];
+            $args = md5(serialize($args));
         }
+
+        $class = get_called_class();
+
+        $fullKey = $class . ':' . $callFrom . ':' . $keySuffix;
+
+        if ($ttl === null) {
+            $ttl = static::TTL_CACHE;
+        }
+
         return Container::getLoader()->fetchCache($fullKey, $fn, $ttl);
     }
 }

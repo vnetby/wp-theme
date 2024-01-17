@@ -29,23 +29,25 @@ abstract class EntityTaxonomy extends Entity
 
     static function filter(array $filter = [], int $page = 1, int $perPage = -1)
     {
-        $filter['taxonomy'] = static::getKey();
-        if ($perPage > 0) {
-            $filter['number'] = $perPage;
-            $filter['offset'] = $perPage * $page - $perPage;
-        } else {
-            if (isset($filter['number'])) {
-                unset($filter['number']);
+        return static::fetchCache(function () use ($filter, $page, $perPage) {
+            $filter['taxonomy'] = static::getKey();
+            if ($perPage > 0) {
+                $filter['number'] = $perPage;
+                $filter['offset'] = $perPage * $page - $perPage;
+            } else {
+                if (isset($filter['number'])) {
+                    unset($filter['number']);
+                }
+                if (isset($filter['offset'])) {
+                    unset($filter['offset']);
+                }
             }
-            if (isset($filter['offset'])) {
-                unset($filter['offset']);
+            $query = new \WP_Term_Query($filter);
+            $res = [];
+            foreach ($query->terms as $term) {
+                $res[] = static::getByWpItem($term);
             }
-        }
-        $query = new \WP_Term_Query($filter);
-        $res = [];
-        foreach ($query->terms as $term) {
-            $res[] = static::getByWpItem($term);
-        }
-        return new DbResult($res, $page, $perPage, -1);
+            return new DbResult($res, $page, $perPage, -1);
+        });
     }
 }
