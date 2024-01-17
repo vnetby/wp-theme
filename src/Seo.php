@@ -8,11 +8,9 @@ use Vnetby\Schemaorg\Types\Type;
 use Vnetby\Wptheme\Front\Template;
 use Vnetby\Wptheme\Models\ModelTaxonomy;
 
-use function PHPSTORM_META\map;
 
 class Seo
 {
-
     const LIMIT_TITLE = 70;
     const LIMIT_DESC = 300;
     const LIMIT_IMG_WIDTH = 1200;
@@ -37,8 +35,10 @@ class Seo
         });
 
         add_filter('get_canonical_url', function ($url) {
-            if ($model = Container::getLoader()->getCurrentEntityElement()) {
-                return $model->getCanonicalUrl();
+            if ($item = Container::getLoader()->getCurrentEntityElement()) {
+                if ($canonical = $item->getCanonicalUrl()) {
+                    return $canonical;
+                }
             }
             return $url;
         });
@@ -360,8 +360,8 @@ class Seo
         if (is_404()) {
             return Container::getLoader()->getNotFoundTitle();
         }
-        if ($model = Container::getLoader()->getCurrentEntityElement()) {
-            return $model->getSeoTitle();
+        if ($item = Container::getLoader()->getCurrentEntityElement()) {
+            return $item->getSeoTitle();
         }
         if (is_archive()) {
             return static::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
@@ -375,11 +375,13 @@ class Seo
      */
     static function getCurrentDesc(): string
     {
-        if ($model = Container::getLoader()->getCurrentEntityElement()) {
-            return $model->getSeoDesc();
-        }
-        if (is_archive()) {
-            return static::getArchiveDesc($GLOBALS['wp_query']->query['post_type']);
+        if ($entity = Container::getLoader()->getCurrentEntityClass()) {
+            if ($item = $entity::getCurrent()) {
+                return $item->getSeoDesc();
+            }
+            if (is_archive()) {
+                return $entity::getArchiveSeoTitle();
+            }
         }
         return get_bloginfo('description');
     }
@@ -390,11 +392,13 @@ class Seo
      */
     static function getCurrentImage(): string
     {
-        if ($model = Container::getLoader()->getCurrentEntityElement()) {
-            return $model->getSeoImage();
-        }
-        if (is_archive()) {
-            return static::getArchiveImage($GLOBALS['wp_query']->query['post_type']);
+        if ($entity = Container::getLoader()->getCurrentEntityClass()) {
+            if ($item = $entity::getCurrent()) {
+                return $item->getSeoImage();
+            }
+            if (is_archive()) {
+                return $entity::getArchiveSeoImage();
+            }
         }
         return '';
     }

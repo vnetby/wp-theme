@@ -2,6 +2,7 @@
 
 namespace Vnetby\Wptheme\Entities;
 
-class EntityPost extends EntityPostType
+class EntityPost extends Base\EntityPostType
 {
+    const KEY = 'post';
 }

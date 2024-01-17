@@ -2,21 +2,16 @@
 
 namespace Vnetby\Wptheme\Models;
 
+use Error;
 use Vnetby\Wptheme\Container;
-use Vnetby\Wptheme\Entities\Entity;
+use Vnetby\Wptheme\Entities\Base\DbResult;
+use Vnetby\Wptheme\Entities\Base\Entity;
+use Vnetby\Wptheme\Traits\ModelSeo;
+
 
 abstract class Model
 {
-
-    /**
-     * @var array<int,Post>
-     */
-    protected static array $cachePosts = [];
-
-    /**
-     * @var array<int,Term>
-     */
-    protected static array $cacheTerms = [];
+    use ModelSeo;
 
     /**
      * - Объект элемента wordpress
@@ -25,64 +20,6 @@ abstract class Model
     protected $wpItem;
 
     protected array $meta = [];
-
-    /**
-     * - Получает текущий элемент
-     *
-     * @return ?static
-     */
-    abstract static function getCurrent();
-
-    /**
-     * - Получает элемент по ID
-     *
-     * @param integer $id
-     * @return ?static
-     */
-    abstract static function getById(int $id);
-
-    /**
-     * - Получает сущность элемента
-     * @return Entity
-     */
-    static function getEntity(): ?Entity
-    {
-        foreach (Container::getLoader()->getEntities() as $entity) {
-            if ($entity->getModelClass() === get_called_class()) {
-                return $entity;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * - Получает уникальный ключ сущности
-     * @return string
-     */
-    static function getKey(): string
-    {
-        return static::getEntity()->getKey();
-    }
-
-    static function getArchiveSeoTitle(): string
-    {
-        return Container::getClassSeo()::getArchiveTitle(static::getKey());
-    }
-
-    static function getArchiveSeoDesc(): string
-    {
-        return Container::getClassSeo()::getArchiveDesc(static::getKey());
-    }
-
-    static function getArchiveSeoImageId(): int
-    {
-        return Container::getClassSeo()::getArchiveImageId(static::getKey());
-    }
-
-    static function getArchiveSeoImage(): string
-    {
-        return Container::getClassSeo()::getArchiveImage(static::getKey());
-    }
 
 
     /**
@@ -94,29 +31,114 @@ abstract class Model
     }
 
 
-    protected static function getWpDb(): \wpdb
+    /**
+     * - Получает элемент по ID
+     * @param integer $id
+     * @return ?static
+     */
+    static function getById(int $id)
     {
-        return $GLOBALS['wpdb'];
+        return static::getModelEntity()->getElementById($id);
     }
 
 
     /**
-     * - Получает по объекту элемента wordpress
+     * - Получает объект элемента по объекту WP
      * @param \WP_Post|\WP_Term $wpItem
      * @return static
      */
     static function getByWpItem($wpItem)
     {
-        return self::fetchCache('getByWpItem:' . ($wpItem instanceof \WP_Post ? $wpItem->ID : $wpItem->term_id), function () use ($wpItem) {
-            return new static($wpItem);
-        });
+        return static::getModelEntity()->getElementByWpItem($wpItem);
     }
 
 
-    static function fetchCache(string $key, callable $fn, int $ttl = 0)
+    /**
+     * - Получает текущий элемент
+     * @return ?static
+     */
+    static function getCurrent()
     {
-        $key = md5(get_called_class() . ':' . $key);
-        return Container::getLoader()->fetchCache($key, $fn, $ttl);
+        return static::getModelEntity()->getCurrentElement();
+    }
+
+
+    /**
+     * - Является ли текущая страница страницей архива
+     */
+    static function isArchive(): bool
+    {
+        return static::getModelEntity()->isPageArchive();
+    }
+
+
+    /**
+     * - Является ли текущая страница отдельной страницей
+     */
+    static function isSingle(): bool
+    {
+        return static::getModelEntity()->isPageSingle();
+    }
+
+
+    /**
+     * - Фильтрует элементы
+     * @param array $filter
+     * @param integer $page
+     * @param integer $perPage
+     * @return DbResult<static>
+     */
+    static function filter(array $filter = [], int $page = 1, int $perPage = -1)
+    {
+        return static::getModelEntity()->filter($filter, $page, $perPage);
+    }
+
+
+    /**
+     * - Проверяет наследовательность вызванного класса
+     * @throws \Error
+     * @param integer $deep
+     * @return void
+     */
+    protected static function validateExtend($deep = 1)
+    {
+        if (!static::isExtended()) {
+            $fnName = debug_backtrace()[$deep]['function'] ?? '';
+            throw new Error("You can use {$fnName} method only from parent class");
+        }
+    }
+
+
+    /**
+     * - Получает сущность к которой привязана модель
+     * @throws \Error
+     * 
+     * @return Entity
+     */
+    static function getModelEntity()
+    {
+        static::validateExtend(2);
+        foreach (Container::getLoader()->getEntities() as $entity) {
+            if ($entity->getModelClass() === get_called_class()) {
+                return $entity;
+            }
+        }
+        $className = get_called_class();
+        throw new Error("Cannot get entity of {$className}");
+    }
+
+
+    /**
+     * - Проверяет является ли вызванный класс любым отличным от ModelPostType или ModelTaxonomy
+     * @return boolean
+     */
+    protected static function isExtended(): bool
+    {
+        $className = get_called_class();
+        if ($className === ModelPostType::class || $className === ModelTaxonomy::class) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -132,6 +154,7 @@ abstract class Model
         $this->wpItem->$key = $value;
         return $this;
     }
+
 
     /**
      * - Устанавливает значение в зависимости от того является ли элемент постом или термином
@@ -153,50 +176,60 @@ abstract class Model
         return $this->wpItem->$key ?? $def;
     }
 
+
     private function getRightField(string $postField, string $termField, $def = null)
     {
         return $this->getField($this->isPost() ? $postField : $termField, $def);
     }
+
 
     function getId(): int
     {
         return (int)$this->getRightField('ID', 'term_id', 0);
     }
 
+
     function getTitle(): string
     {
         return $this->getRightField('post_title', 'name', '');
     }
+
 
     function getSlug(): string
     {
         return $this->getRightField('post_name', 'slug', '');
     }
 
+
     function getParentId(): int
     {
         return (int)$this->getRightField('post_parent', 'parent', 0);
     }
+
 
     function getUrl(): string
     {
         return $this->isPost() ? get_permalink($this->wpItem) : get_term_link($this->wpItem, $this->wpItem->taxonomy);
     }
 
+
     function getEditUrl(): string
     {
         return $this->isPost() ? get_edit_post_link($this->wpItem) : get_edit_term_link($this->wpItem);
     }
+
 
     function getContent(): string
     {
         return $this->getRightField('post_content', 'description', '');
     }
 
+
     function getMeta(string $key, bool $single = true)
     {
         return $this->isPost() ? get_post_meta($this->getId(), $key, $single) : get_term_meta($this->getId(), $key, $single);
     }
+
 
     function getAcfField(string $selector, $def = null)
     {
@@ -206,6 +239,7 @@ abstract class Model
         return get_field($selector, $this->wpItem, true);
     }
 
+
     /**
      * @return \WP_Post|\WP_Term
      */
@@ -214,15 +248,18 @@ abstract class Model
         return $this->wpItem;
     }
 
+
     function isPost(): bool
     {
         return $this instanceof ModelPostType;
     }
 
+
     function isTerm(): bool
     {
         return $this instanceof ModelTaxonomy;
     }
+
 
     function getOrder(): int
     {
@@ -233,6 +270,7 @@ abstract class Model
         return (int)$this->wpItem->menu_order;
     }
 
+
     function updateMeta(string $key, $value, $prevValue = '')
     {
         if ($this->isPost()) {
@@ -240,6 +278,7 @@ abstract class Model
         }
         return update_term_meta($this->getId(), $key, $value, $prevValue);
     }
+
 
     function deleteMeta(string $key, $value = '')
     {
@@ -249,53 +288,27 @@ abstract class Model
         return delete_term_meta($this->getId(), $key, $value);
     }
 
-    function fetchCacheItem(string $key, callable $fn, int $ttl = 0)
+
+    function getKey(): string
     {
-        return static::fetchCache($key . ':' . $this->getId(), $fn, $ttl);
+        return $this->getRightField('post_type', 'taxonomy', '');
     }
 
-    function getSeoTitle(): string
+
+    function getEntity(): ?Entity
     {
-        if ($this->isPost()) {
-            return Container::getClassSeo()::getPostTitle($this->getId());
+        return Container::getLoader()->getEntity($this->getKey());
+    }
+
+
+    protected function fetchCache(callable $fn, string $key = '', int $ttl = 0)
+    {
+        $callFrom = debug_backtrace()[1]['function'] ?? '';
+        $fullKey = get_called_class() . ':' . $callFrom;
+        if ($key) {
+            $fullKey .= ':' . $key;
         }
-        return Container::getClassSeo()::getTermTitle($this->getId());
-    }
-
-    function getSeoDesc(): string
-    {
-        if ($this->isPost()) {
-            return Container::getClassSeo()::getPostDesc($this->getId());
-        }
-        return Container::getClassSeo()::getTermDesc($this->getId());
-    }
-
-    function getSeoImageId(): int
-    {
-        if ($this->isPost()) {
-            return Container::getClassSeo()::getPostImageId($this->getId());
-        }
-        return Container::getClassSeo()::getTermImageId($this->getId());
-    }
-
-    function getSeoImage(): string
-    {
-        if ($this->isPost()) {
-            return Container::getClassSeo()::getPostImage($this->getId());
-        }
-        return Container::getClassSeo()::getTermImage($this->getId());
-    }
-
-    function getSeoSchemaType(): \Vnetby\Schemaorg\Types\Type
-    {
-        if ($this->isPost()) {
-            return Container::getClassSeo()::getPostSchemaType($this->getId());
-        }
-        return Container::getClassSeo()::getTermSchemaType($this->getId());
-    }
-
-    function getCanonicalUrl(): string
-    {
-        return $this->getUrl();
+        $fullKey .= ':' . $this->getId();
+        return Container::getLoader()->fetchCache($fullKey, $fn, $ttl);
     }
 }

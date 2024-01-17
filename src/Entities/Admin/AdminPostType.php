@@ -1,17 +1,190 @@
 <?php
 
-namespace Vnetby\Wptheme\Entities;
+/**
+ *  @see https://wp-kama.com/function/register_post_type
+ */
 
+namespace Vnetby\Wptheme\Entities\Admin;
+
+use Error;
 use Vnetby\Helpers\HelperArr;
 use Vnetby\Helpers\HelperFn;
 use Vnetby\Wptheme\Helpers\HelperAcf;
 
-abstract class EntityPostType extends Entity
+
+/**
+ * @template TParamLabels of array{
+ *      name: ?string,
+ *      singular_name: ?string,
+ *      add_new: ?string,
+ *      add_new_item: ?string,
+ *      edit_item: ?string,
+ *      new_item: ?string,
+ *      view_item: ?string,
+ *      search_items: ?string,
+ *      not_found: ?string,
+ *      parent_item_colon: ?string,
+ *      menu_name: ?string
+ * }
+ * 
+ * // setters
+ * // every method is an underscore property of \WP_Post_Type object without "set" prefix
+ * 
+ * @method static setLabel(string $val)
+ * @method static setLabels(TParamLabels $val)
+ * @method static setDescription(string $val)
+ * @method static setPublic(bool $val)
+ * @method static setPublicQueryable(bool $val)
+ * @method static setExcludeFromSearch(bool $val)
+ * @method static setShowUi(bool $val)
+ * @method static setShowInAdminBar(bool $val)
+ * @method static setShowInNavMenus(bool $val)
+ * @method static setShowInRest(bool $val)
+ * @method static setRestBase(string $val)
+ * @method static setRestControllerClass(string $val)
+ * @method static setRestNamespace(string $val)
+ * @method static setMenuPosition(string|int|float $val)
+ * @method static setMenuIcon(string $val)
+ * @method static setCapabilityType(string|array $val)
+ * @method static setCapabilities(string|array $val)
+ * @method static setMapMetaCap(bool $val)
+ * @method static setHierarchical(bool $val)
+ * @method static setSupports(array|false $val)
+ * @method static setRegisterMetaBoxCb(string $val)
+ * @method static setTaxonomies(string[] $val)
+ * @method static setPermalinkEpmask(string $val)
+ * @method static setHasArchive(bool $val)
+ * @method static setRewrite(array|bool $val)
+ * @method static setQueryVar(string|bool $val)
+ * @method static setCanExport(bool $val)
+ * @method static setDeleteWithUser(bool $val)
+ * @method static setTemplate(array $val)
+ * @method static setTemplateLock(bool $val)
+ * @method static setCap(\stdClass $val)
+ * 
+ * // getters (available only after init action)
+ * // every method is an underscore property of \WP_Post_Type object without "get" prefix
+ * 
+ * @method string getLabel()
+ * @method \stdClass getLabels()
+ * @method string getDescription()
+ * @method bool getPublic()
+ * @method bool getPublicQueryable()
+ * @method bool getExcludeFromSearch()
+ * @method bool getShowUi()
+ * @method bool getShowInAdminBar()
+ * @method bool getShowInNavMenus()
+ * @method bool getShowInRest()
+ * @method string getRestBase()
+ * @method string getRestControllerClass()
+ * @method string getRestNamespace()
+ * @method string|int|float getMenuPosition()
+ * @method string getMenuIcon()
+ * @method string|array getCapabilityType()
+ * @method string|array getCapabilities()
+ * @method bool getMapMetaCap()
+ * @method bool getHierarchical()
+ * @method array|false getSupports()
+ * @method string getRegisterMetaBoxCb()
+ * @method string[] getTaxonomies()
+ * @method string getPermalinkEpmask()
+ * @method bool getHasArchive()
+ * @method array|bool getRewrite()
+ * @method string|bool getQueryVar()
+ * @method bool getCanExport()
+ * @method bool getDeleteWithUser()
+ * @method array getTemplate()
+ * @method bool getTemplateLock()
+ * @method \stdClass getCap()
+ */
+class AdminPostType extends Admin
 {
 
-    function setup()
+    /**
+     * @var \WP_Post_Type
+     */
+    protected $wpItem;
+
+
+    /**
+     * - Регистрирует тип поста в WP
+     * @return static
+     */
+    function register(array $params = [])
     {
-        $this->wpItem = get_post_type_object($this->getKey());
+        $this->params = array_merge($this->params, $params);
+        // это встроенный тип поста
+        if (!$this->params) {
+            if ($wpItem = get_post_type_object($this->getKey())) {
+                $this->wpItem = $wpItem;
+            } else {
+                throw new Error("Post type {$this->getKey()} is not registered");
+            }
+            return;
+        }
+
+        $this->filterParams();
+
+        add_action('init', function () {
+            if (!empty($this->params['taxonomies'])) {
+                foreach ($this->params['taxonomies'] as $tax) {
+                    register_taxonomy_for_object_type($tax, $this->getKey());
+                }
+            }
+            $wpItem = register_post_type($this->getKey(), $this->params);
+            if (is_wp_error($wpItem)) {
+                throw new Error(implode(PHP_EOL, $wpItem->get_error_messages()));
+            }
+            $this->wpItem = $wpItem;
+        });
+
+        return $this;
+    }
+
+
+    protected function filterParams()
+    {
+        $params = $this->params;
+
+        $defLabels = [
+            'name' => __('Элементы', 'vnet'),
+            'singular_name' => __('Элемент', 'vnet'),
+            'add_new' => __('Добавить элемент', 'vnet'),
+            'add_new_item' => __('Добавление элемента', 'vnet'),
+            'edit_item' => __('Редактирование элемента', 'vnet'),
+            'new_item' => __('Новый элемент', 'vnet'),
+            'view_item' => __('Смотреть элемент', 'vnet'),
+            'search_items' => __('Искать элемент', 'vnet'),
+            'not_found' => __('Не найдено', 'vnet'),
+            'not_found_in_trash' => __('Не найдено в корзине', 'vnet'),
+            'parent_item_colon' => __('Родительский элемент:', 'vnet'),
+            'menu_name' => __('Элементы', 'vnet')
+        ];
+
+        $labels = $params['labels'] ?? [];
+
+        if (empty($params['label'])) {
+            $params['label'] = __('Элементы', 'vnet');
+        }
+
+        if (empty($labels['name'])) {
+            $labels['name'] = $params['label'];
+        }
+
+        if (empty($labels['menu_name'])) {
+            $labels['menu_name'] = $params['label'];
+        }
+
+        $labels = array_merge($defLabels, $labels);
+
+        $params['labels'] = $labels;
+
+        $params['public'] = $params['public'] ?? true;
+        $params['has_archive'] = $params['has_archive'] ?? true;
+        $params['query_var'] = $params['query_var'] ?? false;
+        $params['supports'] = $params['supports'] ?? ['title', 'thumbnail', 'excerpt', 'editor'];
+
+        $this->params = $params;
     }
 
 
@@ -25,7 +198,7 @@ abstract class EntityPostType extends Entity
      * @param string $after 
      * @return void 
      */
-    protected function addRoute(string $regex, array $queryVars, $after = 'top')
+    function addRoute(string $regex, array $queryVars, $after = 'top')
     {
         add_action('init', function () use ($regex, $queryVars, $after) {
             $query = '';
@@ -51,7 +224,7 @@ abstract class EntityPostType extends Entity
      * @param callable $getTitle функция для получения заголовка
      * @return void 
      */
-    protected function autoTitle(callable $getTitle)
+    function autoTitle(callable $getTitle)
     {
         $this->theAdminStyle("
             body.post-type-{$this->getKey()} #titlediv #titlewrap {
@@ -75,7 +248,7 @@ abstract class EntityPostType extends Entity
     }
 
 
-    protected function addImgColumn(string $position = 'title', string $label = 'Картинка', ?callable $callback = null)
+    function addImgColumn(string $position = 'title', string $label = 'Картинка', ?callable $callback = null)
     {
         if ($callback === null) {
             $callback = function ($postId) {
@@ -95,7 +268,7 @@ abstract class EntityPostType extends Entity
      * @param callable $getValCallback функция для получения значения ячейки
      * @param string $position либо ключ колонки после которой вставить текущую, либо first|last
      */
-    protected function addColumn(string $colKey, string $colLabel, callable $getValCallback, string $position = 'last')
+    function addColumn(string $colKey, string $colLabel, callable $getValCallback, string $position = 'last')
     {
         add_filter("manage_{$this->getKey()}_posts_columns", function (array $columns) use ($colKey, $position, $colLabel) {
             if ($position === 'last') {
@@ -119,7 +292,7 @@ abstract class EntityPostType extends Entity
      * @param string $colKey 
      * @return void 
      */
-    protected function removeColumn(string $colKey)
+    function removeColumn(string $colKey)
     {
         add_filter("manage_{$this->getKey()}_posts_columns", function (array $columns) use ($colKey) {
             if (isset($columns[$colKey])) {
@@ -130,7 +303,7 @@ abstract class EntityPostType extends Entity
     }
 
 
-    protected function sortableColumn(string $colKey, callable $sortFunction)
+    function sortableColumn(string $colKey, callable $sortFunction)
     {
         add_filter("manage_edit-{$this->getKey()}_sortable_columns", function ($columns) use ($colKey) {
             $columns[$colKey] = $colKey;
@@ -153,7 +326,7 @@ abstract class EntityPostType extends Entity
      * @param callable $sortFunction 
      * @return void 
      */
-    protected function defaultSort(callable $sortFunction)
+    function defaultSort(callable $sortFunction)
     {
         if (is_admin()) {
             $this->setQuerySort($sortFunction);
@@ -161,7 +334,7 @@ abstract class EntityPostType extends Entity
     }
 
 
-    protected function defaultFrontSort(callable $sortFunction)
+    function defaultFrontSort(callable $sortFunction)
     {
         if (!is_admin()) {
             $this->setQuerySort($sortFunction);
@@ -186,7 +359,7 @@ abstract class EntityPostType extends Entity
      * @param callable $filterCallback функция которая изменяет WP_Query (добавляет параметры фильтра)
      * @return void 
      */
-    protected function addAdminFilter(callable $drawCallback, callable $filterCallback)
+    function addAdminFilter(callable $drawCallback, callable $filterCallback)
     {
         add_action('restrict_manage_posts', function () use ($drawCallback) {
             global $pagenow;
@@ -214,7 +387,7 @@ abstract class EntityPostType extends Entity
     }
 
 
-    protected function removeAdminFilter(string $filterId)
+    function removeAdminFilter(string $filterId)
     {
         $this->theAdminStyle("
             .tablenav #{$filterId} {
@@ -224,15 +397,17 @@ abstract class EntityPostType extends Entity
     }
 
 
-    protected function menuColorOrange()
+    function menuColorOrange()
     {
         $this->menuColor('orange');
+        return $this;
     }
 
 
-    protected function menuColorGreen()
+    function menuColorGreen()
     {
         $this->menuColor('green');
+        return $this;
     }
 
 
@@ -240,13 +415,14 @@ abstract class EntityPostType extends Entity
      * - Устанавливает цвет пункту меню
      * @param string $color orange|green
      */
-    protected function menuColor(string $color)
+    function menuColor(string $color)
     {
         $this->addMenuClass('theme-menu-item', "c-{$color}");
+        return $this;
     }
 
 
-    protected function menuAwesomeIco(string $ico)
+    function menuAwesomeIco(string $ico)
     {
         add_action('admin_enqueue_scripts', function () {
             wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
@@ -264,6 +440,7 @@ abstract class EntityPostType extends Entity
                 font-weight: bold;
             }
         ");
+        return $this;
     }
 
 
@@ -272,7 +449,7 @@ abstract class EntityPostType extends Entity
      * - Перенаправляет на страницу таксономии
      * @param string $tax
      */
-    protected function groupTaxonomies(string $tax)
+    function groupTaxonomies(string $tax)
     {
         $url = '/wp-admin/edit-tags.php?taxonomy=' . $tax . '&post_type=' . $this->getKey();
 
@@ -319,10 +496,11 @@ abstract class EntityPostType extends Entity
             }
             $query->set('posts_per_page', $perPage);
         });
+        return $this;
     }
 
 
-    protected function filterExcerpt(callable $fn, int $priority = 10)
+    function filterExcerpt(callable $fn, int $priority = 10)
     {
         add_filter('get_the_excerpt', function (string $exerpt, \WP_Post $post) use ($fn) {
             if ($post->post_type !== $this->getKey()) {
@@ -330,10 +508,11 @@ abstract class EntityPostType extends Entity
             }
             return call_user_func($fn, $exerpt, $post);
         }, $priority, 2);
+        return $this;
     }
 
 
-    protected function filterTitle(callable $fn, int $priority = 10)
+    function filterTitle(callable $fn, int $priority = 10)
     {
         if (is_admin()) {
             return;
@@ -344,13 +523,14 @@ abstract class EntityPostType extends Entity
             }
             return call_user_func($fn, $title, $postId);
         }, $priority, 2);
+        return $this;
     }
 
 
-    protected function filterPermalink(callable $fn, int $priority = 10)
+    function filterPermalink(callable $fn, int $priority = 10)
     {
         if (is_admin()) {
-            return;
+            return $this;
         }
         add_filter('post_type_link', function (string $permalink, \WP_Post $post, bool $leavename) use ($fn) {
             if ($post->post_type !== $this->getKey()) {
@@ -358,6 +538,7 @@ abstract class EntityPostType extends Entity
             }
             return call_user_func($fn, $permalink, $post, $leavename);
         }, $priority, 3);
+        return $this;
     }
 
 
@@ -370,7 +551,7 @@ abstract class EntityPostType extends Entity
      * @param string $context 
      * @param string $priority 
      */
-    protected function addMetabox(string $id, string $title, callable $drawCallback, callable $updateCallback = null, string $context = 'advanced', string $priority = 'default')
+    function addMetabox(string $id, string $title, callable $drawCallback, callable $updateCallback = null, string $context = 'advanced', string $priority = 'default')
     {
         add_action('add_meta_boxes', function () use ($id, $title, $drawCallback, $context, $priority) {
             add_meta_box($id, $title, $drawCallback, $this->getKey(), $context, $priority);
@@ -381,6 +562,8 @@ abstract class EntityPostType extends Entity
                 call_user_func($updateCallback, $postId, $post, $update);
             }, 10, 3);
         }
+
+        return $this;
     }
 
 
@@ -390,13 +573,14 @@ abstract class EntityPostType extends Entity
      * @param callable $callback 
      * @return void 
      */
-    protected function onUpdated(callable $callback)
+    function onUpdated(callable $callback)
     {
         add_action('post_updated', function (int $postId, \WP_Post $postAfter, \WP_Post $postBefore) use ($callback) {
             if ($postAfter->post_type === $this->getKey()) {
                 call_user_func($callback, $postId, $postAfter, $postBefore);
             }
         }, 10, 3);
+        return $this;
     }
 
 
@@ -406,10 +590,11 @@ abstract class EntityPostType extends Entity
      * @param callable $callback 
      * @return void 
      */
-    protected function onSave(callable $callback)
+    function onSave(callable $callback)
     {
         $slug = $this->getKey();
         add_action("save_post_{$slug}", $callback, -1, 3);
+        return $this;
     }
 
 
@@ -419,7 +604,7 @@ abstract class EntityPostType extends Entity
      * @param callable $callback 
      * @return void 
      */
-    protected function onAcfSave(callable $callback)
+    function onAcfSave(callable $callback)
     {
         add_action('acf/save_post', function ($postId) use ($callback) {
             if (!is_numeric($postId)) {
@@ -430,6 +615,7 @@ abstract class EntityPostType extends Entity
             }
             call_user_func($callback, $postId);
         }, 10, 1);
+        return $this;
     }
 
 
@@ -438,7 +624,7 @@ abstract class EntityPostType extends Entity
      * @param callable $callback должен вернуть массив строк
      * @return void 
      */
-    protected function rowClass(callable $callback)
+    function rowClass(callable $callback)
     {
         add_filter('post_class', function (array $classes, array $class, int $postId) use ($callback) {
             if (!is_admin()) {
@@ -450,6 +636,7 @@ abstract class EntityPostType extends Entity
             }
             return array_merge($classes, call_user_func($callback, $postId));
         }, 10, 3);
+        return $this;
     }
 
 
@@ -460,7 +647,7 @@ abstract class EntityPostType extends Entity
      * @param string $postField название колонки из таблицы posts
      * @return void 
      */
-    protected function acfToPostField(string $acfName, string $postField)
+    function acfToPostField(string $acfName, string $postField)
     {
         $postField = strtolower($postField);
 
@@ -507,6 +694,8 @@ abstract class EntityPostType extends Entity
                 unset($GLOBALS['acf_top_post_field_' . $postField . '_' . $acfName . '_' . $postId]);
             }
         });
+
+        return $this;
     }
 
 
@@ -519,7 +708,7 @@ abstract class EntityPostType extends Entity
      * @param string $acfNames имя или ключи полей
      * @return void 
      */
-    protected function acfToPostContentFiltered(string ...$acfNames)
+    function acfToPostContentFiltered(string ...$acfNames)
     {
         $this->onAcfSave(function (int $postId) use ($acfNames) {
             $acfValues = [];
@@ -580,10 +769,11 @@ abstract class EntityPostType extends Entity
                 return $resVal;
             }, 10, 3);
         }
+        return $this;
     }
 
 
-    protected function filterArchiveMainQuery(callable $callback)
+    function filterArchiveMainQuery(callable $callback)
     {
         add_action('pre_get_posts', function (\WP_Query $query) use ($callback) {
             if (!$query->is_main_query() || !$query->is_post_type_archive($this->getKey())) {
@@ -591,5 +781,6 @@ abstract class EntityPostType extends Entity
             }
             HelperFn::execCallback($callback, $query);
         });
+        return $this;
     }
 }

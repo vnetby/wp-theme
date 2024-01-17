@@ -2,6 +2,7 @@
 
 namespace Vnetby\Wptheme\Entities;
 
-class EntityPage extends EntityPostType
+class EntityPage extends Base\EntityPostType
 {
+    const KEY = 'page';
 }

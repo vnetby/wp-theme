@@ -3,19 +3,11 @@
 namespace Vnetby\Wptheme\Traits\Config;
 
 use Error;
-use Vnetby\Wptheme\Entities\Entity;
+use Vnetby\Wptheme\Entities\Base\Entity;
 use Vnetby\Wptheme\Entities\EntityCategory;
 use Vnetby\Wptheme\Entities\EntityPage;
 use Vnetby\Wptheme\Entities\EntityPost;
 use Vnetby\Wptheme\Entities\EntityTag;
-use Vnetby\Wptheme\Entities\EntityTaxonomy;
-use Vnetby\Wptheme\Entities\PostType;
-use Vnetby\Wptheme\Entities\Taxonomy;
-use Vnetby\Wptheme\Models\Model;
-use Vnetby\Wptheme\Models\ModelPostType;
-use Vnetby\Wptheme\Models\ModelTaxonomy;
-use Vnetby\Wptheme\Models\Post;
-use Vnetby\Wptheme\Models\Term;
 
 trait ConfigEntities
 {
@@ -44,44 +36,61 @@ trait ConfigEntities
         'page' => EntityPage::class
     ];
 
+    /**
+     * - Классы не установленных типов сущностей
+     * @var array<string,class-string<PostType>>
+     */
+    protected array $entitiesUndefied = [];
+
 
     /**
      * - Регестрирует сущность
      * - Порядок регистрации не имеет значение, автоматически определится это таксономия или тип поста
-     * @param string $key Уникальный ключ сущности
-     *   в случае с таксономией - это таксономия
-     *   в случае с типом поста - это тип поста
      * @param class-string<Entity> $entityClass класс сущности
+     * @throws Error
      * 
      * @return static
      */
-    function registerEntity(string $key, string $entityClass)
+    function registerEntity(string $entityClass)
     {
+        if (!$entityClass::KEY) {
+            throw new Error("Missing KEY constant in {$entityClass}");
+        }
+
+        if (!$entityClass::CLASS_ADMIN) {
+            throw new Error("Missing CLASS_ADMIN constant in {$entityClass}");
+        }
+
+        $key = $entityClass::KEY;
+
         $postTypes = get_post_types();
         $taxes = get_taxonomies();
 
-        if (isset($taxes[$key]) || isset($this->entitiesTax[$key])) {
+        if (isset($taxes[$key]) && !isset($this->entitiesTax[$key])) {
             throw new Error("Taxonomy {$key} exists");
         }
 
-        if (isset($postTypes[$key]) || isset($this->entitiesPosts[$key])) {
+        if (isset($postTypes[$key]) && !isset($this->entitiesPosts[$key])) {
             throw new Error("Post type {$key} exists");
         }
 
-        if ($entityClass === EntityTaxonomy::class || is_subclass_of($entityClass, EntityTaxonomy::class)) {
+        if ($entityClass::isTaxonomy()) {
             $this->entitiesTax[$key] = $entityClass;
-        } else {
+        } else if ($entityClass::isPostType()) {
             $this->entitiesPosts[$key] = $entityClass;
+        } else {
+            $this->entitiesUndefied[$key] = $entityClass;
         }
+
         return $this;
     }
 
 
     /**
      * - Получает текущую сущность
-     * @return Entity|null
+     * @return ?class-string<Entity>
      */
-    function getCurrentEntity(): ?Entity
+    function getCurrentEntityClass(): ?string
     {
         if ($key = $this->getCurrentEntityKey()) {
             return $this->entities[$key] ?? null;
@@ -117,18 +126,21 @@ trait ConfigEntities
 
     /**
      * - Получает текущий элемент сущности
-     * @return ModelPostType|ModelTaxonomy|null
+     * @return ?Entity
      */
     function getCurrentEntityElement()
     {
-        if ($entity = $this->getCurrentEntity()) {
-            return $entity->getCurrentElement();
+        if ($class = $this->getCurrentEntityClass()) {
+            return $class::getCurrent();
         }
         return null;
     }
 
 
-    function getEntity(string $key): ?Entity
+    /**
+     * @return ?class-string<Entity>
+     */
+    function getEntityClass(string $key): ?string
     {
         return $this->entities[$key] ?? null;
     }
@@ -136,7 +148,7 @@ trait ConfigEntities
 
     /**
      * - Получает все зарегестрированные сущности
-     * @return Entity[]
+     * @return class-string<Entity>[]
      */
     function getEntities(): array
     {
@@ -144,50 +156,19 @@ trait ConfigEntities
     }
 
 
-    function getEntityElementByPostId(int $postId): ?ModelPostType
-    {
-        $postType = get_post_type($postId);
-        if (!$postType) {
-            return null;
-        }
-        if ($entity = $this->getEntity($postType)) {
-            return $entity->getModelClass()::getById($postId);
-        }
-        return null;
-    }
-
-
-    function getEntityElementByTermId(int $termId): ?ModelTaxonomy
-    {
-        /**
-         * @var \wpdb $wpdb
-         */
-        global $wpdb;
-
-        $res = $wpdb->get_results("SELECT `taxonomy` FROM `{$wpdb->term_taxonomy}` WHERE `term_id` = {$termId} LIMIT 1", ARRAY_A);
-
-        if (!$res || is_wp_error($res)) {
-            return null;
-        }
-
-        if ($entity = $this->getEntity($res[0]['taxonomy'])) {
-            return $entity->getModelClass()::getById($termId);
-        }
-
-        return null;
-    }
-
-
     protected function setupEntities()
     {
         foreach ($this->entitiesTax as $key => $className) {
-            $this->entities[$key] = new $className($key);
+            $this->entities[$key] = $className;
+            $className::setup($className::getAdmin());
         }
         foreach ($this->entitiesPosts as $key => $className) {
-            $this->entities[$key] = new $className($key);
+            $this->entities[$key] = $className;
+            $className::setup($className::getAdmin());
         }
-        foreach ($this->entities as $key => $entity) {
-            $entity->setup();
+        foreach ($this->entitiesUndefied as $key => $className) {
+            $this->entities[$key] = $className;
+            $className::setup($className::getAdmin());
         }
     }
 }
