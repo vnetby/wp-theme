@@ -6,7 +6,6 @@ use Vnetby\Schemaorg\Jsonld;
 use Vnetby\Schemaorg\Types\Thing\CreativeWork\WebPage\WebPage;
 use Vnetby\Schemaorg\Types\Type;
 use Vnetby\Wptheme\Front\Template;
-use Vnetby\Wptheme\Models\ModelTaxonomy;
 
 
 class Seo
@@ -412,7 +411,7 @@ class Seo
         if ($title = static::getTermMetaTitle($termId)) {
             return $title;
         }
-        $term = ModelTaxonomy::getById($termId);
+        $term = Container::getLoader()->getTermById($termId);
         if ($term) {
             return $term->getTitle();
         }
@@ -424,7 +423,7 @@ class Seo
         if ($desc = static::getTermMetaDesc($termId)) {
             return $desc;
         }
-        $term = ModelTaxonomy::getById($termId);
+        $term = Container::getLoader()->getTermById($termId);
         if ($term) {
             return $term->getContent();
         }

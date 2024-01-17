@@ -4,6 +4,8 @@ namespace Vnetby\Wptheme\Traits\Config;
 
 use Error;
 use Vnetby\Wptheme\Entities\Base\Entity;
+use Vnetby\Wptheme\Entities\Base\EntityPostType;
+use Vnetby\Wptheme\Entities\Base\EntityTaxonomy;
 use Vnetby\Wptheme\Entities\EntityCategory;
 use Vnetby\Wptheme\Entities\EntityPage;
 use Vnetby\Wptheme\Entities\EntityPost;
@@ -153,6 +155,53 @@ trait ConfigEntities
     function getEntities(): array
     {
         return $this->entities;
+    }
+
+
+    /**
+     * - Получает пост по его ID
+     * @param integer $postId
+     * @return ?EntityPostType
+     */
+    function getPostById(int $postId)
+    {
+        $post = get_post($postId);
+        if (!$post) {
+            return null;
+        }
+        $entityClass = $this->getEntityClass($post->post_type);
+        return $entityClass::getByWpItem($post);
+    }
+
+
+    /**
+     * - Получает термин по его ID
+     * @param integer $termId
+     * @return ?EntityTaxonomy
+     */
+    function getTermById(int $termId)
+    {
+        /**
+         * @var \wpdb $wpdb
+         */
+        global $wpdb;
+        $table = $wpdb->term_taxonomy;
+
+        $res = $wpdb->get_results("SELECT `taxonomy` FROM `{$table}` WHERE `term_id` = {$termId} LIMIT 1", ARRAY_A);
+
+        if (!$res || is_wp_error($res)) {
+            return null;
+        }
+
+        $tax = $res[0]['taxonomy'];
+
+        $entityClass = $this->getEntityClass($tax);
+
+        if (!$entityClass) {
+            return null;
+        }
+
+        return $entityClass::getById($termId);
     }
 
 
