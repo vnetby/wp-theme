@@ -71,17 +71,18 @@ abstract class Entity
 
     /**
      * - Получает текущий элемент
+     * - Работает только на странице детального просмотра
      * @return ?static
      */
     static function getCurrent()
     {
-        if (static::isPostType()) {
+        if (static::isPostType() && static::isSingle()) {
             if ($post = get_post()) {
                 return static::getByWpItem($post);
             }
             return null;
         }
-        if (static::isTaxonomy()) {
+        if (static::isTaxonomy() && static::isSingle()) {
             $obj = get_queried_object();
             if ($obj && $obj instanceof \WP_Term) {
                 return static::getByWpItem($obj);
