@@ -50,4 +50,18 @@ abstract class EntityTaxonomy extends Entity
             return new DbResult($res, $page, $perPage, -1);
         });
     }
+
+
+    /**
+     * - Получает элемент по slug
+     * @param string $slug 
+     * @return null|static
+     */
+    static function getBySlug(string $slug)
+    {
+        return self::fetchCache(function () use ($slug) {
+            $term = get_term_by('slug', esc_sql($slug), static::getKey());
+            return $term ? static::getByWpItem($term) : null;
+        });
+    }
 }
