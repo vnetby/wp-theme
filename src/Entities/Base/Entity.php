@@ -2,6 +2,9 @@
 
 namespace Vnetby\Wptheme\Entities\Base;
 
+use Closure;
+use ReflectionFunction;
+use ReflectionFunctionAbstract;
 use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Entities\Admin\Admin;
 use Vnetby\Wptheme\Traits\ModelSeo;
@@ -388,20 +391,50 @@ abstract class Entity
         return '';
     }
 
+
+    /**
+     * - Получает данные из кэша если они есть, в противном случае вызывает переданную функцию
+     * - Уникальный ключ кэша формируется автоматичкски из следующих частей:
+     *      - класс в котором вызван метод (static::class)
+     *      - название метода, в котром вызван данный метод
+     *      - $keySuffix, или хэш md5 серилизированных аргументов метода, в котором вызван данный метод
+     *      - ID элемента, если данный метод был вызван в контесте объекта сущности
+     * - В качестве разделителя частей ключа кэша используется знак :
+     * - Объектное кэширование отработает вне зависимости от параметра $ttl
+     * - Если в качестве аргументов метода, в котором вызван данный метод,
+     *      переданы параметры которые нельзя серилизовать, например SimpleXMLElement,
+     *      либо переданные аргументы являются объектами/массивами большщой вложенности,
+     *      необходимо вручную передать $keySuffix
+     * @param callable $fn - функция которая отработает в случае если кэша нет
+     * @param string $keySuffix - доподнительная часть ключа кэша
+     *      если не передать, в качестве такого ключа, будут использованы
+     *      аргументы метода, в контекстве которого был вызван данный метод
+     * @param integer|null $ttl время жизни кэша, по умолчанию static::TTL_CACHE
+     */
     protected static function fetchCache(callable $fn, $keySuffix = '', ?int $ttl = null)
     {
         $debug = debug_backtrace();
 
-        $callFrom = $debug[1]['function'] ?? '';
+        $callFrom = $debug[1];
 
         if (!$keySuffix) {
-            $args = $debug[1]['args'] ?? [];
-            $args = md5(serialize($args));
+            $args = $callFrom['args'] ?? [];
+            if ($args) {
+                $keySuffix = md5(serialize($args));
+            }
         }
 
         $class = get_called_class();
 
-        $fullKey = $class . ':' . $callFrom . ':' . $keySuffix;
+        $fullKey = $class . ':' . $callFrom['function'];
+
+        if ($keySuffix) {
+            $fullKey .= ':' . $keySuffix;
+        }
+
+        if ($callFrom['type'] == '->' && isset($callFrom['object']) && $callFrom['object'] instanceof self) {
+            $fullKey .= ':' . $callFrom['object']->getId();
+        }
 
         if ($ttl === null) {
             $ttl = static::TTL_CACHE;
