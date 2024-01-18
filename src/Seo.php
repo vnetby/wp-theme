@@ -682,11 +682,11 @@ class Seo
         }
 
         if ($title) {
-            $page->setName($title);
+            $page->setName(static::filterTitle($title));
         }
 
         if ($desc) {
-            $page->setDescription($desc);
+            $page->setDescription(static::filterDesc($desc));
         }
 
         if ($image) {
