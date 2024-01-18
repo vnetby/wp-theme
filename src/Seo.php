@@ -66,7 +66,7 @@ class Seo
         if ($limit > -1 && mb_strlen($str) > $limit) {
             $str = mb_substr($str, 0, $limit - 3);
             $str = preg_replace("/\s[^\s]*$/", '', $str);
-            $str .= ' ...';
+            $str .= '...';
         }
         return htmlspecialchars($str);
     }
