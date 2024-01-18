@@ -359,11 +359,13 @@ class Seo
         if (is_404()) {
             return Container::getLoader()->getNotFoundTitle();
         }
-        if ($item = Container::getLoader()->getCurrentEntityElement()) {
-            return $item->getSeoTitle();
-        }
-        if (is_archive()) {
-            return static::getArchiveTitle($GLOBALS['wp_query']->query['post_type']);
+        if ($entity = Container::getLoader()->getCurrentEntityClass()) {
+            if ($item = $entity::getCurrent()) {
+                return $item->getSeoTitle();
+            }
+            if (is_archive()) {
+                return $entity::getArchiveSeoTitle();
+            }
         }
         return get_bloginfo('title');
     }
@@ -374,12 +376,15 @@ class Seo
      */
     static function getCurrentDesc(): string
     {
+        if (is_404()) {
+            return '';
+        }
         if ($entity = Container::getLoader()->getCurrentEntityClass()) {
             if ($item = $entity::getCurrent()) {
                 return $item->getSeoDesc();
             }
             if (is_archive()) {
-                return $entity::getArchiveSeoTitle();
+                return $entity::getArchiveSeoDesc();
             }
         }
         return get_bloginfo('description');
