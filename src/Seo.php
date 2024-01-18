@@ -361,6 +361,14 @@ class Seo
     static function getPostSeoMeta(int $postId): array
     {
         $data = get_post_meta($postId, 'vnet_seo', true);
+        if (!$data) {
+            return [];
+        }
+        // обратная совместимость
+        // раньше сохранялось строкой
+        if (!is_array($data)) {
+            $data = @unserialize($data);
+        }
         return $data ? $data : [];
     }
 
