@@ -29,7 +29,7 @@ wp_enqueue_media();
     <label for="<?= $nameTitle; ?>" style="display: block; margin-bottom: 3px; width: fit-content;">
         <?= __('Заголовок', 'vnet'); ?>
     </label>
-    <input type="text" name="<?= $nameTitle; ?>" id="<?= $nameTitle; ?>" style="width: 100%;" value="<?= $title; ?>" maxlength="<?= $seoClass::LIMIT_TITLE; ?>">
+    <input type="text" name="<?= $nameTitle; ?>" id="<?= $nameTitle; ?>" style="width: 100%;" value="<?= htmlspecialchars($title); ?>" maxlength="<?= $seoClass::LIMIT_TITLE; ?>">
     <p style="margin: 0px; margin-top: 3px;">
         <?= __('Маскимальное кол-во символов: ' . $seoClass::LIMIT_TITLE, 'vnet'); ?>
     </p>
@@ -38,7 +38,7 @@ wp_enqueue_media();
     <label for="<?= $nameDesc; ?>" style="display: block; margin-bottom: 3px; width: fit-content;">
         <?= __('Описание', 'vnet'); ?>
     </label>
-    <textarea name="<?= $nameDesc; ?>" id="<?= $nameDesc; ?>" style="width: 100%; min-height: 150px;" maxlength="<?= $seoClass::LIMIT_DESC; ?>"><?= $desc; ?></textarea>
+    <textarea name="<?= $nameDesc; ?>" id="<?= $nameDesc; ?>" style="width: 100%; min-height: 150px;" maxlength="<?= $seoClass::LIMIT_DESC; ?>"><?= htmlspecialchars($desc); ?></textarea>
     <p style="margin: 0px; margin-top: 3px;">
         <?= __('Маскимальное кол-во символов: ' . $seoClass::LIMIT_DESC, 'vnet'); ?>
     </p>

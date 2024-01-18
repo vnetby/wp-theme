@@ -2,6 +2,7 @@
 
 namespace Vnetby\Wptheme;
 
+use Vnetby\Helpers\HelperStr;
 use Vnetby\Schemaorg\Jsonld;
 use Vnetby\Schemaorg\Types\Thing\CreativeWork\WebPage\WebPage;
 use Vnetby\Schemaorg\Types\Type;
@@ -10,7 +11,7 @@ use Vnetby\Wptheme\Front\Template;
 
 class Seo
 {
-    const LIMIT_TITLE = 70;
+    const LIMIT_TITLE = 60;
     const LIMIT_DESC = 300;
     const LIMIT_IMG_WIDTH = 1200;
     const LIMIT_IMG_HEIGHT = 630;
@@ -20,13 +21,14 @@ class Seo
     {
         add_filter('pre_get_document_title', function (string $title) {
             if ($pageTitle = static::getCurrentTitle()) {
-                return $pageTitle;
+                return static::filterTitle($pageTitle);
             }
             return $title;
         });
 
         add_action('wp_head', function () {
             if ($pageDesc = static::getCurrentDesc()) {
+                $pageDesc = static::filterDesc($pageDesc);
                 echo '<meta name="description" content="' . $pageDesc . '">';
             }
             static::renderOgMeta();
@@ -44,16 +46,40 @@ class Seo
     }
 
 
+    protected static function filterTitle(string $title): string
+    {
+        return static::filterSeoString($title, static::LIMIT_TITLE);
+    }
+
+
+    protected static function filterDesc(string $desc): string
+    {
+        return static::filterSeoString($desc, static::LIMIT_DESC);
+    }
+
+
+    protected static function filterSeoString(string $str, $limit = -1): string
+    {
+        $str = strip_tags($str);
+        $str = preg_replace("/\n/", ' ', $str);
+        $str = preg_replace("/[\s]{2,}/", ' ', $str);
+        if ($limit > -1 && mb_strlen($str) > $limit) {
+            $str = mb_substr($str, 0, $limit);
+        }
+        return htmlspecialchars($str);
+    }
+
+
     protected static function renderOgMeta()
     {
         $metaTags = [
             [
                 'property' => 'og:title',
-                'content' => static::getCurrentTitle()
+                'content' => static::filterTitle(static::getCurrentTitle())
             ],
             [
                 'property' => 'og:description',
-                'content' => static::getCurrentDesc()
+                'content' => static::filterDesc(static::getCurrentDesc())
             ],
             [
                 'property' => 'og:image',
@@ -73,7 +99,7 @@ class Seo
             ],
             [
                 'property' => 'og:site_name',
-                'content' => get_bloginfo('title')
+                'content' => htmlspecialchars(get_bloginfo('title'))
             ]
         ];
 
@@ -136,7 +162,7 @@ class Seo
             $title = $_REQUEST['vnet-seo-title'] ?? '';
             $desc = $_REQUEST['vnet-seo-desc'] ?? '';
             $image = $_REQUEST['vnet-seo-image'] ?? '';
-            update_post_meta($postId, 'vnet_seo', serialize(['title' =>  $title, 'desc' => $desc, 'image' => $image]));
+            update_post_meta($postId, 'vnet_seo', ['title' =>  $title, 'desc' => $desc, 'image' => $image]);
         });
 
 
@@ -335,7 +361,7 @@ class Seo
     static function getPostSeoMeta(int $postId): array
     {
         $data = get_post_meta($postId, 'vnet_seo', true);
-        return $data ? unserialize($data) : [];
+        return $data ? $data : [];
     }
 
     /**
