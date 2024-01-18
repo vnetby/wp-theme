@@ -13,6 +13,11 @@ abstract class EntityPostType extends Entity
     const CLASS_ADMIN = AdminPostType::class;
 
     /**
+     * @var \WP_Post
+     */
+    protected $wpItem;
+
+    /**
      * @param AdminPostType $admin
      */
     static function setup($admin)
@@ -108,5 +113,10 @@ abstract class EntityPostType extends Entity
             return false;
         }
         return $id === $this->getId();
+    }
+
+    function getPublishDate(string $format = ''): string
+    {
+        return get_the_date($format, $this->getWpItem());
     }
 }
