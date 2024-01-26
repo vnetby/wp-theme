@@ -222,6 +222,10 @@ class SeoPost
             $res[] = $home;
         }
 
+        if ($item->isFrontPage()) {
+            return $res;
+        }
+
         $admin = $item::getAdmin();
 
         if ($admin->getHasArchive() && $item::getKey() !== 'page') {
