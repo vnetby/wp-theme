@@ -125,18 +125,18 @@ class AdminPostType extends Admin
 
         $this->filterParams();
 
-        add_action('init', function () {
-            if (!empty($this->params['taxonomies'])) {
-                foreach ($this->params['taxonomies'] as $tax) {
-                    register_taxonomy_for_object_type($tax, $this->getKey());
-                }
+        // add_action('init', function () {
+        if (!empty($this->params['taxonomies'])) {
+            foreach ($this->params['taxonomies'] as $tax) {
+                register_taxonomy_for_object_type($tax, $this->getKey());
             }
-            $wpItem = register_post_type($this->getKey(), $this->params);
-            if (is_wp_error($wpItem)) {
-                throw new Error(implode(PHP_EOL, $wpItem->get_error_messages()));
-            }
-            $this->wpItem = $wpItem;
-        });
+        }
+        $wpItem = register_post_type($this->getKey(), $this->params);
+        if (is_wp_error($wpItem)) {
+            throw new Error(implode(PHP_EOL, $wpItem->get_error_messages()));
+        }
+        $this->wpItem = $wpItem;
+        // });
 
         return $this;
     }

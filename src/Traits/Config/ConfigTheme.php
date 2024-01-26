@@ -97,6 +97,7 @@ trait ConfigTheme
     }
 
     /**
+     * - Добавляет относительно корня проекта
      * @param string $handle
      * @param string $src
      * @param boolean $inFooter
@@ -114,6 +115,20 @@ trait ConfigTheme
     }
 
     /**
+     * - Добавляет относительно корня темы
+     * @param string $handle
+     * @param string $src
+     * @param boolean $inFooter
+     * @param array $deps
+     * @return static
+     */
+    function addAdminScriptTheme(string $handle, string $src, $inFooter = true, $deps = [])
+    {
+        return $this->addAdminScript($handle, $this->themeUri($src), $inFooter, $deps);
+    }
+
+    /**
+     * - Добавляет относительно корня проекта
      * @param string $handle
      * @param string $src
      * @param array $deps
@@ -131,6 +146,20 @@ trait ConfigTheme
     }
 
     /**
+     * - Добавляет относительно корня темы
+     * @param string $handle
+     * @param string $src
+     * @param array $deps
+     * @param string $media
+     * @return static
+     */
+    function addAdminStyleTheme(string $handle, string $src, $deps = [], $media = 'all')
+    {
+        return $this->addAdminStyle($handle, $this->themeUri($src), $deps, $media);
+    }
+
+    /**
+     * - Добавляет относительно корня проекта
      * @param string $handle
      * @param string $src
      * @param boolean $inFooter
@@ -148,6 +177,20 @@ trait ConfigTheme
     }
 
     /**
+     * - Добавляет относительно корня темы
+     * @param string $handle
+     * @param string $src
+     * @param boolean $inFooter
+     * @param array $deps
+     * @return static
+     */
+    function addFrontScriptTheme(string $handle, string $src, $inFooter = true, $deps = [])
+    {
+        return $this->addFrontScript($handle, $this->themeUri($src), $inFooter, $deps);
+    }
+
+    /**
+     * - Добавляет относительно корня проекта
      * @param string $handle
      * @param string $src
      * @param array $deps
@@ -165,6 +208,20 @@ trait ConfigTheme
     }
 
     /**
+     * - Добавляет относительно корня темы
+     * @param string $handle
+     * @param string $src
+     * @param array $deps
+     * @param string $media
+     * @return static
+     */
+    function addFrontStyleTheme(string $handle, string $src, $deps = [], $media = 'all')
+    {
+        return $this->addFrontStyle($handle, $this->themeUri($src), $deps, $media);
+    }
+
+    /**
+     * - Добавляет относительно корня проекта
      * @param string $src
      * @return static
      */
@@ -175,6 +232,17 @@ trait ConfigTheme
     }
 
     /**
+     * - Добавляет относительно корня темы
+     * @param string $src
+     * @return static
+     */
+    function addMceCssTheme(string $src)
+    {
+        return $this->addMceCss($this->themeUri($src));
+    }
+
+    /**
+     * - Добавляет относительно корня проекта
      * @param string $src
      * @return static
      */
@@ -182,5 +250,15 @@ trait ConfigTheme
     {
         $this->rootAvatar = $src;
         return $this;
+    }
+
+    /**
+     * - Добавляет относительно корня темы
+     * @param string $src
+     * @return static
+     */
+    function setRootAvatarTheme(string $src)
+    {
+        return $this->setRootAvatar($this->themeUri($src));
     }
 }

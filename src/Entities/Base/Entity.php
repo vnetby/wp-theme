@@ -2,18 +2,18 @@
 
 namespace Vnetby\Wptheme\Entities\Base;
 
-use Closure;
-use ReflectionFunction;
-use ReflectionFunctionAbstract;
+use Vnetby\Schemaorg\Types\Type;
 use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Entities\Admin\Admin;
-use Vnetby\Wptheme\Traits\ModelSeo;
+use Vnetby\Wptheme\Entities\Admin\AdminPostType;
+use Vnetby\Wptheme\Traits\CacheClass;
 
 abstract class Entity
 {
     const CLASS_ADMIN = '';
     const KEY = '';
-    const TTL_CACHE = 0;
+
+    use CacheClass;
 
     /**
      * @var Admin
@@ -127,7 +127,7 @@ abstract class Entity
     static function getArchiveSeoTitle(): string
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getArchiveTitle(static::getKey());
+            return Container::getSeo()->getArchiveTitle(static::getKey());
         }
         return '';
     }
@@ -135,7 +135,7 @@ abstract class Entity
     static function getArchiveSeoDesc(): string
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getArchiveDesc(static::getKey());
+            return Container::getSeo()->getArchiveDesc(static::getKey());
         }
         return '';
     }
@@ -143,7 +143,7 @@ abstract class Entity
     static function getArchiveSeoImageId(): int
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getArchiveImageId(static::getKey());
+            return Container::getSeo()->getArchiveImageId(static::getKey());
         }
         return 0;
     }
@@ -151,9 +151,35 @@ abstract class Entity
     static function getArchiveSeoImage(): string
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getArchiveImage(static::getKey());
+            return Container::getSeo()->getArchiveImage(static::getKey());
         }
         return '';
+    }
+
+    /**
+     * - Получает хлебные крошки архива
+     * @return array<array{
+     *      url: string,
+     *      label: string
+     * }>
+     */
+    static function getArchiveSeoBreadcrumbs(): array
+    {
+        if (static::isPostType()) {
+            return Container::getSeo()->getArchiveBreadcrumbs(static::getKey());
+        }
+        return [];
+    }
+
+    /**
+     * @return Type[]|Type|null
+     */
+    static function getCurrentArchiveSchemaType()
+    {
+        if (!is_archive()) {
+            return null;
+        }
+        return Container::getSeo()->getCurrentArchiveSchemaType(static::getKey());
     }
 
     protected static function getWpDb(): \wpdb
@@ -179,6 +205,53 @@ abstract class Entity
     {
         $class = get_called_class();
         return $class instanceof EntityTaxonomy || is_subclass_of($class, EntityTaxonomy::class);
+    }
+
+    static function urlArchive(): string
+    {
+        if (static::isPostType()) {
+            $url = get_post_type_archive_link(static::getKey());
+            return $url ? $url : '';
+        }
+        if (static::isTaxonomy()) {
+            $postType = static::getMainPostType();
+            if (!$postType) {
+                return '';
+            }
+            if ($entityClass = Container::getLoader()->getEntityClass($postType)) {
+                return $entityClass::urlArchive();
+            }
+        }
+        return '';
+    }
+
+    static function labelArchive(): string
+    {
+        if (static::isPostType()) {
+            return static::getAdmin()->getLabel();
+        }
+        if (static::isTaxonomy()) {
+            $postType = static::getMainPostType();
+            if (!$postType) {
+                return '';
+            }
+            if ($entity = Container::getLoader()->getEntityClass($postType)) {
+                return $entity::getAdmin()->getLabel();
+            }
+            return '';
+        }
+        return '';
+    }
+
+    /**
+     * - Если это таксономия - вернет первый привязанный тип поста
+     */
+    static function getMainPostType(): string
+    {
+        if (!static::isTaxonomy()) {
+            return '';
+        }
+        return static::getAdmin()->getObjectType()[0] ?? '';
     }
 
     /**
@@ -370,115 +443,94 @@ abstract class Entity
         return false;
     }
 
+    /**
+     * - Получает СЕО заголовок текущего элемента
+     */
     function getSeoTitle(): string
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getPostTitle($this->getId());
+            return Container::getSeo()->getPostTitle($this->getId());
         }
         if (static::isTaxonomy()) {
-            return Container::getClassSeo()::getTermTitle($this->getId());
+            return Container::getSeo()->getTermTitle($this->getId());
         }
         return '';
     }
 
+    /**
+     * - Получает СЕО описание данного элемента
+     */
     function getSeoDesc(): string
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getPostDesc($this->getId());
+            return Container::getSeo()->getPostDesc($this->getId());
         }
         if (static::isTaxonomy()) {
-            return Container::getClassSeo()::getTermDesc($this->getId());
+            return Container::getSeo()->getTermDesc($this->getId());
         }
         return '';
     }
 
+    /**
+     * - Получает ID сео картинки данного элемента
+     */
     function getSeoImageId(): int
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getPostImageId($this->getId());
+            return Container::getSeo()->getPostImageId($this->getId());
         }
         if (static::isTaxonomy()) {
-            return Container::getClassSeo()::getTermImageId($this->getId());
+            return Container::getSeo()->getTermImageId($this->getId());
         }
         return 0;
     }
 
+    /**
+     * - Получает картинку для сео данного элемента
+     */
     function getSeoImage(): string
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getPostImage($this->getId());
+            return Container::getSeo()->getPostImage($this->getId());
         }
         if (static::isTaxonomy()) {
-            return Container::getClassSeo()::getTermImage($this->getId());
+            return Container::getSeo()->getTermImage($this->getId());
         }
         return '';
     }
 
-    function getSeoSchemaType(): \Vnetby\Schemaorg\Types\Type
+    /**
+     * - Получает тип schema.org данного элемента
+     * @return Type[]|Type|null
+     */
+    function getSeoSchemaType()
     {
         if (static::isPostType()) {
-            return Container::getClassSeo()::getPostSchemaType($this->getId());
+            return Container::getSeo()->getPostSchemaType($this->getId());
+        }
+        return null;
+    }
+
+    /**
+     * - Получает навигационную цепочку элемента
+     * @return array<array{
+     *      url: string,
+     *      label: string
+     * }>
+     */
+    function getSeoBreadcrumbs(): array
+    {
+        if (static::isPostType()) {
+            return Container::getSeo()->getPostBreadcrumbs($this->getId());
         }
         if (static::isTaxonomy()) {
-            return Container::getClassSeo()::getTermSchemaType($this->getId());
+            return Container::getSeo()->getTermBreadcrumbs($this->getId());
         }
-        return '';
+        return [];
     }
 
     function getCanonicalUrl(): string
     {
         return '';
-    }
-
-
-    /**
-     * - Получает данные из кэша если они есть, в противном случае вызывает переданную функцию
-     * - Уникальный ключ кэша формируется автоматичкски из следующих частей:
-     *      - класс в котором вызван метод (static::class)
-     *      - название метода, в котром вызван данный метод
-     *      - $keySuffix, или хэш md5 серилизированных аргументов метода, в котором вызван данный метод
-     *      - ID элемента, если данный метод был вызван в контесте объекта сущности
-     * - В качестве разделителя частей ключа кэша используется знак :
-     * - Объектное кэширование отработает вне зависимости от параметра $ttl
-     * - Если в качестве аргументов метода, в котором вызван данный метод,
-     *      переданы параметры которые нельзя серилизовать, например SimpleXMLElement,
-     *      либо переданные аргументы являются объектами/массивами большщой вложенности,
-     *      необходимо вручную передать $keySuffix
-     * @param callable $fn - функция которая отработает в случае если кэша нет
-     * @param string $keySuffix - доподнительная часть ключа кэша
-     *      если не передать, в качестве такого ключа, будут использованы
-     *      аргументы метода, в контекстве которого был вызван данный метод
-     * @param integer|null $ttl время жизни кэша, по умолчанию static::TTL_CACHE
-     */
-    protected static function fetchCache(callable $fn, $keySuffix = '', ?int $ttl = null)
-    {
-        $debug = debug_backtrace();
-
-        $callFrom = $debug[1];
-
-        if (!$keySuffix) {
-            $args = $callFrom['args'] ?? [];
-            if ($args) {
-                $keySuffix = md5(serialize($args));
-            }
-        }
-
-        $class = get_called_class();
-
-        $fullKey = $class . ':' . $callFrom['function'];
-
-        if ($keySuffix) {
-            $fullKey .= ':' . $keySuffix;
-        }
-
-        if ($callFrom['type'] == '->' && isset($callFrom['object']) && $callFrom['object'] instanceof self) {
-            $fullKey .= ':' . $callFrom['object']->getId();
-        }
-
-        if ($ttl === null) {
-            $ttl = static::TTL_CACHE;
-        }
-
-        return Container::getLoader()->fetchCache($fullKey, $fn, $ttl);
     }
 }

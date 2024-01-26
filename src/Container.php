@@ -4,8 +4,11 @@ namespace Vnetby\Wptheme;
 
 use Vnetby\Wptheme\Ajax\Response;
 use Vnetby\Wptheme\Front\Template;
-use Vnetby\Wptheme\Models\ModelPostType;
-use Vnetby\Wptheme\Models\ModelTaxonomy;
+use Vnetby\Wptheme\Seo\Seo;
+use Vnetby\Wptheme\Seo\SeoArchive;
+use Vnetby\Wptheme\Seo\SeoOptions;
+use Vnetby\Wptheme\Seo\SeoPost;
+use Vnetby\Wptheme\Seo\SeoTerm;
 
 class Container
 {
@@ -14,7 +17,12 @@ class Container
     private static string $classAjaxResponse = Response::class;
     private static string $classTemplate = Template::class;
     private static string $classMailer = Mailer::class;
+
     private static string $classSeo = Seo::class;
+    private static string $classSeoTerm = SeoTerm::class;
+    private static string $classSeoPost = SeoPost::class;
+    private static string $classSeoArchive = SeoArchive::class;
+    private static string $classSeoOptions = SeoOptions::class;
 
 
     static function getLoader(): Loader
@@ -108,5 +116,77 @@ class Container
     static function getClassSeo(): string
     {
         return self::$classSeo;
+    }
+
+    /**
+     * @param class-string<SeoTerm> $classSeoTerm
+     */
+    static function setClassSeoTerm(string $classSeoTerm)
+    {
+        self::$classSeoTerm = $classSeoTerm;
+    }
+
+    /**
+     * @return class-string<SeoTerm>
+     */
+    static function getClassSeoTerm(): string
+    {
+        return self::$classSeoTerm;
+    }
+
+    /**
+     * @param class-string<SeoOptions> $classSeoOptions
+     */
+    static function setClassSeoOptions(string $classSeoOptions)
+    {
+        self::$classSeoOptions = $classSeoOptions;
+    }
+
+    /**
+     * @return class-string<SeoOptions>
+     */
+    static function getClassSeoOptions(): string
+    {
+        return self::$classSeoOptions;
+    }
+
+    /**
+     * @param class-string<SeoPost> $classSeoPost
+     */
+    static function setClassSeoPost(string $classSeoPost)
+    {
+        self::$classSeoPost = $classSeoPost;
+    }
+
+    /**
+     * @return class-string<SeoPost>
+     */
+    static function getClassSeoPost(): string
+    {
+        return self::$classSeoPost;
+    }
+
+    /**
+     * @param class-string<SeoArchive> $classSeoArchive
+     */
+    static function setClassSeoArchive(string $classSeoArchive)
+    {
+        self::$classSeoArchive = $classSeoArchive;
+    }
+
+    /**
+     * @return class-string<SeoPost>
+     */
+    static function getClassSeoArchive(): string
+    {
+        return self::$classSeoArchive;
+    }
+
+    /**
+     * @return Seo
+     */
+    static function getSeo()
+    {
+        return self::getClassSeo()::getInstance();
     }
 }

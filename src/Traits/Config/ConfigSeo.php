@@ -29,8 +29,7 @@ trait ConfigSeo
     protected function registerSeo()
     {
         if ($this->isSeoEnabled()) {
-            Container::getClassSeo()::setupSeoSettings();
-            Container::getClassSeo()::setup();
+            Container::getSeo();
         }
     }
 

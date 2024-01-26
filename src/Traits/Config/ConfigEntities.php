@@ -104,23 +104,21 @@ trait ConfigEntities
     /**
      * - Получает уникальный ключ текущей сущности
      * - Если это страница термина - вернет таксономию
-     * - Если это страница поста - вернет тип поста
+     * - Если это страница поста или архив постов - вернет тип поста
      *
      * @return string
      */
     function getCurrentEntityKey(): string
     {
-        if (is_singular() || is_front_page()) {
-            return get_post_type();
-        }
         if (is_tax()) {
-            if ($term = get_queried_object()) {
-                return $term->taxonomy;
+            $obj = get_queried_object();
+            if ($obj instanceof \WP_Term) {
+                return $obj->taxonomy;
             }
             return '';
         }
-        if (is_archive()) {
-            return $GLOBALS['wp_query']->query['post_type'];
+        if (is_singular() || is_archive()) {
+            return get_post_type();
         }
         return '';
     }
@@ -165,12 +163,8 @@ trait ConfigEntities
      */
     function getPostById(int $postId)
     {
-        $post = get_post($postId);
-        if (!$post) {
-            return null;
-        }
-        $entityClass = $this->getEntityClass($post->post_type);
-        return $entityClass::getByWpItem($post);
+        $entityClass = $this->getPostEntityClass($postId);
+        return $entityClass ? $entityClass::getById($postId) : null;
     }
 
 
@@ -181,27 +175,28 @@ trait ConfigEntities
      */
     function getTermById(int $termId)
     {
+        $entityClass = $this->getTermEntityClass($termId);
+        return $entityClass ? $entityClass::getById($termId) : null;
+    }
+
+
+    function getPostEntityClass(int $postId): ?string
+    {
+        return $this->getEntityClass(get_post_type($postId));
+    }
+
+
+    function getTermEntityClass(int $termId): ?string
+    {
         /**
          * @var \wpdb $wpdb
          */
         global $wpdb;
-        $table = $wpdb->term_taxonomy;
-
-        $res = $wpdb->get_results("SELECT `taxonomy` FROM `{$table}` WHERE `term_id` = {$termId} LIMIT 1", ARRAY_A);
-
+        $res = $wpdb->get_results("SELECT `taxonomy` FROM `{$wpdb->term_taxonomy}` WHERE `term_id` = {$termId} LIMIT 1", ARRAY_A);
         if (!$res || is_wp_error($res)) {
             return null;
         }
-
-        $tax = $res[0]['taxonomy'];
-
-        $entityClass = $this->getEntityClass($tax);
-
-        if (!$entityClass) {
-            return null;
-        }
-
-        return $entityClass::getById($termId);
+        return $this->getEntityClass($res[0]['taxonomy']);
     }
 
 

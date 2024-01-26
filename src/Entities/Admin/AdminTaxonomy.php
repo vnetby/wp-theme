@@ -115,12 +115,15 @@ class AdminTaxonomy extends Admin
 
         $this->filterParams();
 
-        add_action('init', function () {
-            $wpItem = register_taxonomy($this->getKey(), null, $this->params);
-            if (is_wp_error($wpItem)) {
-                throw new Error(implode(PHP_EOL, $wpItem->get_error_messages()));
-            }
-        });
+        // add_action('init', function () {
+        $wpItem = register_taxonomy($this->getKey(), null, $this->params);
+
+        if (is_wp_error($wpItem)) {
+            throw new Error(implode(PHP_EOL, $wpItem->get_error_messages()));
+        }
+
+        $this->wpItem = $wpItem;
+        // });
 
         return $this;
     }

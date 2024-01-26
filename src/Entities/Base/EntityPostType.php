@@ -69,13 +69,6 @@ abstract class EntityPostType extends Entity
         });
     }
 
-    static function urlArchive(): string
-    {
-        $url = get_post_type_archive_link(static::getKey());
-        return $url ? $url : '';
-    }
-
-
     function getExcerpt(): string
     {
         return $this->wpItem->post_excerpt;
@@ -118,5 +111,10 @@ abstract class EntityPostType extends Entity
     function getPublishDate(string $format = ''): string
     {
         return get_the_date($format, $this->getWpItem());
+    }
+
+    function getModifiedDate(string $format = ''): string
+    {
+        return get_the_modified_date($format, $this->getWpItem());
     }
 }
