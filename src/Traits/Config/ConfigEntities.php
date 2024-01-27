@@ -85,11 +85,11 @@ trait ConfigEntities
         $postTypes = get_post_types();
         $taxes = get_taxonomies();
 
-        if (isset($taxes[$key]) && !isset($this->entitiesTax[$key])) {
+        if (isset($taxes[$key]) && !isset($this->defaultTaxes[$key])) {
             throw new Error("Taxonomy {$key} exists");
         }
 
-        if (isset($postTypes[$key]) && !isset($this->entitiesPosts[$key])) {
+        if (isset($postTypes[$key]) && !isset($this->defaultPostTypes[$key])) {
             throw new Error("Post type {$key} exists");
         }
 
