@@ -122,4 +122,10 @@ abstract class EntityPostType extends Entity
     {
         return get_the_modified_date($format, $this->getWpItem());
     }
+
+    function getTemplate(): string
+    {
+        $value = $this->getMeta('_wp_page_template');
+        return $value ? $value : '';
+    }
 }
