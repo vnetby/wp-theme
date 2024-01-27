@@ -89,6 +89,11 @@ class SeoArchive
         $title = $term ? $term->getSeoTitle() : $entityClass::getArchiveSeoTitle();
         $desc = $term ? $term->getSeoDesc() : $entityClass::getArchiveSeoDesc();
         $img = $term ? $term->getSeoImage() : $entityClass::getArchiveSeoImage();
+        $url = $term ? $term->getUrl() : $entityClass::urlArchive();
+
+        if ($url) {
+            $list->setUrl($url);
+        }
 
         if ($title) {
             $list->setName(Container::getSeo()->filterTitle($title));

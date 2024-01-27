@@ -190,6 +190,10 @@ class SeoPost
     {
         $page = $type === self::SCHEMA_TYPE_ARTICLE ? new Article : new WebPage;
 
+        if ($url = $item->getUrl()) {
+            $page->setUrl($url);
+        }
+
         if ($title = $item->getSeoTitle()) {
             $page->setName(Container::getSeo()->filterTitle($title));
         }
