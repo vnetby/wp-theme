@@ -3,6 +3,7 @@
 namespace Vnetby\Wptheme\Traits\Config;
 
 use Error;
+use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Entities\Base\Entity;
 use Vnetby\Wptheme\Entities\Base\EntityPostType;
 use Vnetby\Wptheme\Entities\Base\EntityTaxonomy;
@@ -15,6 +16,28 @@ trait ConfigEntities
 {
 
     /**
+     * - Массив встроенных таксномий wp для которых нужны сущности
+     * - ключ массива = таксономия
+     * - значение = метод из класса Container который возвращает класс сущности
+     * @var array<string,string>
+     */
+    protected array $defaultTaxes = [
+        'category' => 'getClassEntityCategory',
+        'post_tag' => 'getClassEntityTag'
+    ];
+
+    /**
+     * - Массив встроенных типов постов wp для которых нужны сущности
+     * - ключ массива = тип поста
+     * - значение = метод из класса Container который возвращает класс сущности
+     * @var array<string,string>
+     */
+    protected array $defaultPostTypes = [
+        'post' => 'getClassEntityPost',
+        'page' => 'getClassEntityPage'
+    ];
+
+    /**
      * - Массив зарегестрированных сущностей
      * @var array<string,Entity>
      */
@@ -24,19 +47,13 @@ trait ConfigEntities
      * - Классы зарегестрированных сущностей
      * @var array<string,class-string<Taxonomy>>
      */
-    protected array $entitiesTax = [
-        'category' => EntityCategory::class,
-        'post_tag' => EntityTag::class
-    ];
+    protected array $entitiesTax = [];
 
     /**
      * - Классы зарегестрированных сущностей
      * @var array<string,class-string<PostType>>
      */
-    protected array $entitiesPosts = [
-        'post' => EntityPost::class,
-        'page' => EntityPage::class
-    ];
+    protected array $entitiesPosts = [];
 
     /**
      * - Классы не установленных типов сущностей
@@ -202,14 +219,30 @@ trait ConfigEntities
 
     protected function setupEntities()
     {
-        foreach ($this->entitiesTax as $key => $className) {
-            $this->entities[$key] = $className;
-            $className::setup($className::getAdmin());
+        foreach ($this->defaultTaxes as $tax => $callBack) {
+            if (!isset($this->entitiesTax[$tax])) {
+                $this->entitiesTax[$tax] = call_user_func([Container::class, $callBack]);
+            }
         }
+
+        foreach ($this->defaultPostTypes as $postType => $callBack) {
+            if (!isset($this->entitiesPosts[$postType])) {
+                $this->entitiesPosts[$postType] = call_user_func([Container::class, $callBack]);
+            }
+        }
+
+        if (!isset($this->ent))
+
+            foreach ($this->entitiesTax as $key => $className) {
+                $this->entities[$key] = $className;
+                $className::setup($className::getAdmin());
+            }
+
         foreach ($this->entitiesPosts as $key => $className) {
             $this->entities[$key] = $className;
             $className::setup($className::getAdmin());
         }
+
         foreach ($this->entitiesUndefied as $key => $className) {
             $this->entities[$key] = $className;
             $className::setup($className::getAdmin());
