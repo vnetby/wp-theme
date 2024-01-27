@@ -76,11 +76,16 @@ abstract class EntityPostType extends Entity
 
     function getImage($size = 'thumbnail', $icon = false): string
     {
-        if ($img = get_post_thumbnail_id($this->getWpItem())) {
+        if ($img = $this->getImageId()) {
             $src = wp_get_attachment_image_url($img, $size, $icon);
             return $src ? $src : '';
         }
         return '';
+    }
+
+    function getImageId(): int
+    {
+        return (int)get_post_thumbnail_id($this->getWpItem());
     }
 
     function getPostDate(?string $format = null): string

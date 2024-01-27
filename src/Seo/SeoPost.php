@@ -87,6 +87,11 @@ class SeoPost
         if ($title = $this->getPostMetaTitle($postId)) {
             return $title;
         }
+        if ($item = Container::getLoader()->getPostById($postId)) {
+            if ($title = $item->getTitle()) {
+                return $title;
+            }
+        }
         return get_the_title($postId);
     }
 
@@ -95,6 +100,11 @@ class SeoPost
         if ($desc = $this->getPostMetaDesc($postId)) {
             return $desc;
         }
+        if ($item = Container::getLoader()->getPostById($postId)) {
+            if ($desc = $item->getExcerpt()) {
+                return $desc;
+            }
+        }
         return get_the_excerpt($postId);
     }
 
@@ -102,6 +112,11 @@ class SeoPost
     {
         if ($img = $this->getPostMetaImageId($postId)) {
             return $img;
+        }
+        if ($item = Container::getLoader()->getPostById($postId)) {
+            if ($img = $item->getImageId()) {
+                return $img;
+            }
         }
         if ($img = get_post_thumbnail_id($postId)) {
             return $img;
