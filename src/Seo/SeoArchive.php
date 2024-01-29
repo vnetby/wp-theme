@@ -74,7 +74,7 @@ class SeoArchive
             return null;
         }
 
-        $postType = get_post_type();
+        $postType = is_tax() ? get_queried_object()->taxonomy : get_post_type();
         $entityClass = Container::getLoader()->getEntityClass($postType);
 
         /** @var EntityTaxonomy|null */
