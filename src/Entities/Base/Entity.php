@@ -176,9 +176,6 @@ abstract class Entity
      */
     static function getCurrentArchiveSchemaType()
     {
-        if (!is_archive()) {
-            return null;
-        }
         return Container::getSeo()->getCurrentArchiveSchemaType(static::getKey());
     }
 
