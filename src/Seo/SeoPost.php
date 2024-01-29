@@ -29,6 +29,12 @@ class SeoPost
                 return;
             }
 
+            $entity = Container::getLoader()->getEntityClass($post->post_type);
+
+            if (!$entity || !$entity::getAdmin()->isSeoEnabled()) {
+                return;
+            }
+
             add_meta_box('vnet_seo_metabox', __('SEO', 'vnet'), function (\WP_Post $post, $meta) {
                 echo '<p>';
                 echo __('Приоритетность заголовка: СЕО заголовок; название поста.', 'vnet');
@@ -52,6 +58,12 @@ class SeoPost
             $post = get_post($postId);
 
             if (!Container::getSeo()->isPublicPostType($post->post_type)) {
+                return;
+            }
+
+            $entity = Container::getLoader()->getEntityClass($post->post_type);
+
+            if (!$entity || !$entity::getAdmin()->isSeoEnabled()) {
                 return;
             }
 

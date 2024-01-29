@@ -26,6 +26,8 @@ abstract class Admin
      */
     protected array $params = [];
 
+    protected bool $enableSeo = true;
+
 
     function __construct(string $classEntity)
     {
@@ -154,5 +156,21 @@ abstract class Admin
             $fullKey .= ':' . $key;
         }
         return Container::getLoader()->fetchCache($fullKey, $fn, $ttl);
+    }
+
+
+    /**
+     * @return static
+     */
+    function setEnableSeo(bool $enable)
+    {
+        $this->enableSeo = $enable;
+        return $this;
+    }
+
+
+    function isSeoEnabled(): bool
+    {
+        return $this->enableSeo;
     }
 }

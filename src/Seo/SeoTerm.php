@@ -27,6 +27,12 @@ class SeoTerm
         $taxes = Container::getSeo()->getPublicTaxonomies();
 
         foreach ($taxes as $tax) {
+            $entity = Container::getLoader()->getEntityClass($tax->name);
+
+            if (!$entity || !$entity::getAdmin()->isSeoEnabled()) {
+                continue;
+            }
+
             add_action("{$tax->name}_add_form_fields", function () {
                 echo '<div style="padding: 20px; background-color: #fff; border-radius: 10px;">';
                 echo '<h3 style="margin-top: 0px">' . __('СЕО', 'vnet') . '</h3>';
@@ -91,7 +97,10 @@ class SeoTerm
     function getTermSeoMeta(int $termId): array
     {
         $data = get_term_meta($termId, static::META_KEY, true);
-        if (!$data || is_array($data)) {
+        if (!$data) {
+            return [];
+        }
+        if (is_array($data)) {
             return $data;
         }
         $res = @unserialize($data);
