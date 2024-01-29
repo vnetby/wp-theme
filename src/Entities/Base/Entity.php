@@ -270,6 +270,9 @@ abstract class Entity
         if (static::isPostType()) {
             return is_post_type_archive(static::getKey());
         }
+        if (static::isTaxonomy()) {
+            return is_tax(static::getKey());
+        }
         return false;
     }
 
