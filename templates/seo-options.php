@@ -13,7 +13,7 @@ if (!empty($_REQUEST['update_options'])) {
     $seo->options->saveOptionsFromRequest();
 }
 
-$postTypes = Container::getClassSeo()::getPostTypesWithArchives();
+$postTypes = $seo->getPostTypesWithArchives();
 $activeTab = $_REQUEST['tab'];
 
 ?>
