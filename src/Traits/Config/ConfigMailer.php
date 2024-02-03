@@ -2,6 +2,8 @@
 
 namespace Vnetby\Wptheme\Traits\Config;
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 trait ConfigMailer
 {
     /**
@@ -32,6 +34,55 @@ trait ConfigMailer
     protected bool $useSmtpSsl = true;
 
     protected bool $useSmtpTls = false;
+
+    protected function setupMailer()
+    {
+        add_filter('wp_mail_content_type', function ($contentType) {
+            return 'text/html';
+        });
+
+        if ($from = $this->getEmailFrom()) {
+            add_filter('wp_mail_from', fn () => $from);
+        }
+
+        if ($fromName = $this->getEmailFromName()) {
+            add_filter('wp_mail_from_name', fn () => $fromName);
+        }
+
+        if ($this->smtp()) {
+            add_action('phpmailer_init', fn ($mail) => $this->setupMailerSmtp($mail));
+        }
+    }
+
+    protected function setupMailerSmtp(PHPMailer $mail)
+    {
+        $mail->isSMTP();
+        $mail->Host = $this->getSmtpHost();
+
+        if (!!$this->getSmtpUser() && !!$this->getSmtpPass()) {
+            $mail->SMTPAuth = true;
+        }
+
+        if ($user = $this->getSmtpUser()) {
+            $mail->Username = $user;
+        }
+
+        if ($pass = $this->getSmtpPass()) {
+            $mail->Password = $pass;
+        }
+
+        if ($port = $this->getSmtpPort()) {
+            $mail->Port = $port;
+        }
+
+        if ($this->useSmtpSsl) {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        }
+
+        if ($this->useSmtpTls) {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        }
+    }
 
     function setSmtp(bool $smtp)
     {

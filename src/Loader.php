@@ -107,6 +107,7 @@ class Loader
         $this->addFilters();
         $this->setupEntities();
         $this->registerSeo();
+        $this->setupMailer();
 
         return $this;
     }
