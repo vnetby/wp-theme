@@ -533,7 +533,7 @@ class Seo
             $item->setUrl($link['url']);
             $item->setIdentifier($link['url']);
             $item->setPosition($i);
-            $item->setItem((new Thing)->setName($link['label'])->setUrl($link['url']));
+            $item->setItem((new Thing)->setName($link['label'])->setUrl($link['url'])->setIdentifier($link['url']));
             $schemaItems[] = $item;
             $i++;
         }
