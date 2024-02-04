@@ -531,6 +531,7 @@ class Seo
             $item = new ListItem;
             $item->setName($link['label']);
             $item->setUrl($link['url']);
+            $item->setIdentifier($link['url']);
             $item->setPosition($i);
             $item->setItem((new Thing)->setName($link['label'])->setUrl($link['url']));
             $schemaItems[] = $item;
