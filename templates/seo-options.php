@@ -14,7 +14,7 @@ if (!empty($_REQUEST['update_options'])) {
 }
 
 $postTypes = $seo->getPostTypesWithArchives();
-$activeTab = $_REQUEST['tab'];
+$activeTab = $_REQUEST['tab'] ?? 'common';
 
 ?>
 <style>
