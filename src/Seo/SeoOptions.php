@@ -16,6 +16,11 @@ class SeoOptions
 
     function __construct()
     {
+        if (!empty($_GET['page']) && $_GET['page'] === 'vnet-seo-options') {
+            add_action('admin_enqueue_scripts', function () {
+                wp_enqueue_media();
+            });
+        }
         add_action('admin_menu', function () {
             add_options_page(__('Настройки СЕО', 'vnet'), __('СЕО', 'vnet'), 'manage_options', 'vnet-seo-options', function () {
                 Template::theFile(Container::getLoader()->libPath('templates/seo-options.php'));

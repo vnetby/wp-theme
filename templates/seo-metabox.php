@@ -21,8 +21,6 @@ $nameImg = $this->getArg('name_image');
 
 $seo = Container::getSeo();
 
-wp_enqueue_media();
-
 if ($nameTitle) {
 ?>
     <div style="margin-bottom: 10px;">
