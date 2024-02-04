@@ -297,20 +297,14 @@ class Seo
      */
     function getCurrentBreadcrumbs(): array
     {
-        if (is_tax()) {
-            $obj = get_queried_object();
-            if ($obj) {
-                return $this->term->getTermBreadcrumbs($obj->term_id);
-            }
-            return [];
+        if ($item = Container::getLoader()->getCurrentEntityElement()) {
+            return $item->getSeoBreadcrumbs();
         }
 
         if (is_archive()) {
-            return $this->archive->getArchiveBreadcrumbs(get_post_type());
-        }
-
-        if (is_singular()) {
-            return $this->post->getPostBreadcrumbs(get_the_ID());
+            if ($entity = Container::getLoader()->getCurrentEntityClass()) {
+                return $entity::getArchiveSeoBreadcrumbs();
+            }
         }
 
         return [];
