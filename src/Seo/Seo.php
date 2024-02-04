@@ -525,11 +525,14 @@ class Seo
 
         $schemaItems = [];
 
+        $i = 1;
         foreach ($items as $link) {
             $item = new ListItem;
             $item->setName($link['label']);
             $item->setUrl($link['url']);
+            $item->setPosition($i);
             $schemaItems[] = $item;
+            $i++;
         }
 
         $bread->setItemListElement($schemaItems);
