@@ -525,10 +525,10 @@ class Seo
             $item = new ListItem;
             // google requires id field
             $id = 'id';
-            $item->{$id} = $link['url'];
+            // $item->{$id} = $link['url'];
             $item->setName($link['label']);
             $item->setUrl($link['url']);
-            $item->setIdentifier($link['url']);
+            // $item->setIdentifier($link['url']);
             $item->setPosition($i);
             $thing = (new Thing)->setName($link['label'])->setUrl($link['url'])->setIdentifier($link['url']);
             $thing->{$id} = $link['url'];
