@@ -529,11 +529,16 @@ class Seo
         $i = 1;
         foreach ($items as $link) {
             $item = new ListItem;
+            // google requires id field
+            $id = 'id';
+            $item->{$id} = $link['url'];
             $item->setName($link['label']);
             $item->setUrl($link['url']);
             $item->setIdentifier($link['url']);
             $item->setPosition($i);
-            $item->setItem((new Thing)->setName($link['label'])->setUrl($link['url'])->setIdentifier($link['url']));
+            $thing = (new Thing)->setName($link['label'])->setUrl($link['url'])->setIdentifier($link['url']);
+            $thing->{$id} = $link['url'];
+            $item->setItem($thing);
             $schemaItems[] = $item;
             $i++;
         }
