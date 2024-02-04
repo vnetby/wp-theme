@@ -79,7 +79,7 @@ class SeoOptions
      */
     function getPostTypeOptions(string $postType): array
     {
-        return $this->getOptions()['post_type_' . $postType];
+        return $this->getOptions()['post_type_' . $postType] ?? [];
     }
 
     /**
