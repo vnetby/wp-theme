@@ -400,9 +400,9 @@ class Seo
             }
         }
 
-        if ($org = $this->getSchemaOrganization()) {
-            Jsonld::create($org)->render();
-        }
+        // if ($org = $this->getSchemaOrganization()) {
+        //     Jsonld::create($org)->render();
+        // }
 
         if ($breads = $this->getCurrentSchemaBreacrumbs()) {
             Jsonld::create($breads)->render();
