@@ -6,6 +6,7 @@ use Vnetby\Schemaorg\Jsonld;
 use Vnetby\Schemaorg\Types\Thing\Intangible\ItemList\BreadcrumbList;
 use Vnetby\Schemaorg\Types\Thing\Intangible\ListItem\ListItem;
 use Vnetby\Schemaorg\Types\Thing\Organization\Organization;
+use Vnetby\Schemaorg\Types\Thing\Thing;
 use Vnetby\Schemaorg\Types\Type;
 use Vnetby\Wptheme\Container;
 use Vnetby\Wptheme\Router;
@@ -531,6 +532,7 @@ class Seo
             $item->setName($link['label']);
             $item->setUrl($link['url']);
             $item->setPosition($i);
+            $item->setItem((new Thing)->setName($link['label'])->setUrl($link['url']));
             $schemaItems[] = $item;
             $i++;
         }
