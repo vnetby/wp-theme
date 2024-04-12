@@ -16,12 +16,12 @@ define('VNET_DOING_AJAX', true);
 $className = base64_decode($_REQUEST['_class']);
 $method = base64_decode($_REQUEST['_method']);
 
-$ajax = $className::getInstance();
-
-if (!method_exists($ajax, $method)) {
+if (!class_exists($className) || !method_exists($className, $method)) {
     http_response_code(404);
     exit;
 }
+
+$ajax = $className::getInstance();
 
 $ajax->$method();
 
