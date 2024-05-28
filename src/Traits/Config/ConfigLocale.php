@@ -59,6 +59,7 @@ trait ConfigLocale
     function setLocale(string $locale)
     {
         $this->locale = $locale;
+        $this->registerLocale();
         return $this;
     }
 

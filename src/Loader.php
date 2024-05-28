@@ -42,40 +42,6 @@ class Loader
         $this->setEmailAdmin(get_bloginfo('admin_email'));
         $this->setEmailFrom($this->getEmailAdmin());
         $this->setEmailFromName('noreplay');
-
-        $this->setMessages([
-            'required' => __('Заполните поле', 'vnet'),
-            'email' => __('Некорректный формат почты', 'vnet'),
-            'phone' => __('Некорректный формат телефона', 'vnet'),
-            'checkFields' => __('Проверьте введенные Вами данные', 'vnet'),
-            'compare' => __('Значения не совпадают', 'vnet'),
-            'emailExists' => __('Пользователь с таким e-mail существует', 'vnet'),
-            'minLength' => __('Минимальное кол-во символов:', 'vnet') . ' $1',
-            'maxLength' => __('Максимальное кол-во символов:', 'vnet') . ' $1',
-            'wrongPass' => __('Не верный пароль', 'vnet'),
-            'maxSize' => __('Максимальный размер файла:', 'vnet') . ' $1 MB',
-            'isImage' => __('Можно загружать только изображения', 'vnet'),
-            'fileExtensions' => __('Допустимые разрешения файлов:', 'vnet') . ' $1',
-            'typeFloat' => __('Не корректный формат', 'vnet'),
-            'onlyEnCharset' => __('Можно использовать буквы латинского алфавита и цифры', 'vnet'),
-            'mask' => __('Некорректный формат', 'vnet'),
-            'latName' => __('Некорректный формат', 'vnet'),
-            'latNameRuSymbols' => __('Введите латиницей как в паспорте', 'vnet'),
-            'acceptTerms' => __('Примите условия', 'vnet'),
-            'serverError' => __('Произошла серверная ошибка. Пожалуйста, обратитесь в службу поддержки.', 'vnet'),
-            'commentModeration' => __('Ваш отзыв успешно отправлен на модерацию', 'vnet'),
-            'emailExists' => __('Пользователь с таким email существует', 'vnet'),
-            'userEmailNotExists' => __('Пользователь с таким e-mail не существует', 'vnet'),
-            'loginExists' => __('Пользователь с таким логином существует', 'vnet'),
-            'successProfileUpdate' => __('Данные успешно обновлены', 'vnet'),
-            'wrongPassword' => __('Не верный пароль', 'vnet'),
-            'successRegister' => __('Регистрация прошла успешно. Проверьте Вашу почту для активации аккаунта.', 'vnet'),
-            'successRecoveryEmail' => __('Инструкции по восстановлению пароля были отправлены на Ваш email.', 'vnet'),
-            'successSendAdmin' => __('Ваше сообщение успешно отправлено', 'vnet'),
-            'onlyEnCharsetLogin' => __('Логин может состоять из букв латинского алфавита и цифр.', 'vnet'),
-            'incorrectFields' => __('Не все поля заполнены корректно', 'vnet'),
-            'successSubmit' => __('Ваша заявка успешно отправлена', 'vnet')
-        ]);
     }
 
 
@@ -90,7 +56,6 @@ class Loader
         date_default_timezone_set('UTC');
 
         $this->registerCache();
-        $this->registerLocale();
         $this->addDefaultFrontVars();
         $this->registerMenus();
         $this->addSupports();
