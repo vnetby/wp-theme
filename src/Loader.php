@@ -169,9 +169,12 @@ class Loader
         // выводим глобальную переменную на фронт и в админке
         foreach (['wp_head', 'admin_head'] as $hook) {
             add_action($hook, function () {
-                echo '<script>';
-                echo 'window.backDates = JSON.parse(\'' . json_encode($this->frontVars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '\')';
-                echo '</script>';
+                echo '<script id="backDates" type="application/json">' . json_encode($this->frontVars) . '</script>';
+                echo '<script id="backDatesScript">(function() {
+                    window.backDates = JSON.parse(document.getElementById("backDates").textContent); 
+                    document.getElementById("backDates").remove();
+                    document.getElementById("backDatesScript").remove();
+                })();</script>';
             });
         }
     }
