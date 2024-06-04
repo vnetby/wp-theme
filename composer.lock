@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84faccb1eaddeb09a83d106613c02f61",
+    "content-hash": "abb51cc8ad6c3cb761ce67f5b2ba4143",
     "packages": [
         {
             "name": "phpmailer/phpmailer",
@@ -134,16 +134,16 @@
         },
         {
             "name": "vnetby/helpers",
-            "version": "1.0.5",
+            "version": "1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vnetby/helpers.git",
-                "reference": "82246a5eca114c11bf9d1bcf8ab51768b9c6408b"
+                "reference": "13485af843b8e343c181838c908f83c0b67311a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vnetby/helpers/zipball/82246a5eca114c11bf9d1bcf8ab51768b9c6408b",
-                "reference": "82246a5eca114c11bf9d1bcf8ab51768b9c6408b",
+                "url": "https://api.github.com/repos/vnetby/helpers/zipball/13485af843b8e343c181838c908f83c0b67311a2",
+                "reference": "13485af843b8e343c181838c908f83c0b67311a2",
                 "shasum": ""
             },
             "require": {
@@ -165,9 +165,9 @@
             "description": "A small library with helper classes",
             "support": {
                 "issues": "https://github.com/vnetby/helpers/issues",
-                "source": "https://github.com/vnetby/helpers/tree/1.0.5"
+                "source": "https://github.com/vnetby/helpers/tree/1.0.6"
             },
-            "time": "2024-01-06T20:11:56+00:00"
+            "time": "2024-06-04T06:47:41+00:00"
         },
         {
             "name": "vnetby/schemaorg",
