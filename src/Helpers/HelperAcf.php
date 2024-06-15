@@ -76,13 +76,14 @@ class HelperAcf
     }
 
 
-    static function formatAcfValue($values)
+    static function formatAcfValue($values, bool $removeSlashes = false)
     {
         if (!is_array($values)) {
-            return $values;
+            return $removeSlashes && is_string($values) ? stripslashes($values) : $values;
         }
 
         $res = [];
+        $isRepeater = false;
 
         foreach ($values as $fieldKey => $fieldVal) {
             $fieldName = $fieldKey;
@@ -95,12 +96,74 @@ class HelperAcf
                 }
 
                 $fieldName = $field['name'];
+            } else if (preg_match("/^row-[\d]+/", $fieldName)) {
+                $fieldName = (int)preg_replace("/^row-/", '', $fieldName);
+                $isRepeater = true;
             }
 
             if (is_array($fieldVal)) {
-                $res[$fieldName] = self::formatAcfValue($fieldVal);
+                $res[$fieldName] = self::formatAcfValue($fieldVal, $removeSlashes);
             } else {
-                $res[$fieldName] = $fieldVal;
+                $res[$fieldName] = $removeSlashes && is_string($fieldVal) ? stripslashes($fieldVal) : $fieldVal;
+            }
+        }
+
+        if ($isRepeater) {
+            $res = array_values($res);
+        }
+
+        return $res;
+    }
+
+
+    /**
+     * - Меняет ключи полей на кличи в формате field_
+     */
+    static function toAdminValue(string $fieldName, $values)
+    {
+        if (!is_array($values)) {
+            return $values;
+        }
+
+        $field = acf_get_field($fieldName);
+
+        if (!$field) {
+            return $values;
+        }
+
+        $res = self::createFieldValue($field, $values);
+
+        return $res;
+    }
+
+
+    private static function createFieldValue(array $field, $values)
+    {
+        if (!is_array($values) || empty($field['sub_fields'])) {
+            return $values;
+        }
+
+        $isRepeater = $field['type'] === 'repeater';
+        $res = [];
+
+        foreach ($field['sub_fields'] as $subField) {
+            $val = array_key_exists('default_value', $subField) ? $subField['default_value'] : null;
+            if ($isRepeater) {
+                foreach ($values as $i => $fieldVal) {
+                    if (array_key_exists($subField['name'], $fieldVal)) {
+                        $val = $fieldVal[$subField['name']];
+                    } else if (array_key_exists($subField['key'], $fieldVal)) {
+                        $val = $fieldVal[$subField['key']];
+                    }
+                    $res[$i][$subField['key']] = is_array($val) ? static::createFieldValue($subField, $val) : $val;
+                }
+            } else {
+                if (array_key_exists($subField['name'], $values)) {
+                    $val = $values[$subField['name']];
+                } else if (array_key_exists($subField['key'], $values)) {
+                    $val = $values[$subField['key']];
+                }
+                $res[$subField['key']] = is_array($val) ? static::createFieldValue($subField, $val) : $val;
             }
         }
 

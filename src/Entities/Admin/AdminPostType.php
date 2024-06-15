@@ -710,37 +710,48 @@ class AdminPostType extends Admin
      */
     function acfToPostContentFiltered(string ...$acfNames)
     {
-        $this->onAcfSave(function (int $postId) use ($acfNames) {
-            $acfValues = [];
-            $globalKey = 'prevent_acf_load_value_filter_' . $postId;
-            $GLOBALS[$globalKey] = true;
-
-            foreach ($acfNames as $acfName) {
-                $field = acf_get_field($acfName);
-
-                if (!$field) {
-                    continue;
-                }
-
-                $acfName = $field['name'];
-
-                $acfValues[$field['key']] = get_field($field['key'], $postId, false);
-
-                delete_field($field['key'], $postId);
+        add_filter('acf/pre_update_value', function ($defVal, $fieldVal, $postId, $field) use ($acfNames) {
+            if (get_post_type($postId) !== $this->getKey() || !in_array($field['name'], $acfNames)) {
+                return $defVal;
             }
+
+            $post = get_post($postId);
+
+            if (!$post) {
+                return $defVal;
+            }
+
+            $toSave = HelperAcf::formatAcfValue($fieldVal, true);
+
+            if ($post->post_content_filtered) {
+                $data = @unserialize(@gzuncompress(@base64_decode($post->post_content_filtered)));
+                // поддержка предыдущей версии хранения данных
+                if (!$data) {
+                    $data = @unserialize($post->post_content_filtered);
+                }
+            } else {
+                $data = [];
+            }
+
+            // очищаем данные предыдущей версии хранения
+            if (isset($data[$field['key']])) {
+                unset($data[$field['key']]);
+            }
+
+            $data[$field['name']] = $toSave;
 
             wp_update_post([
                 'ID' => $postId,
-                'post_content_filtered' => serialize($acfValues)
+                'post_content_filtered' => base64_encode(gzcompress(serialize($data)))
             ]);
 
-            unset($GLOBALS[$globalKey]);
-        });
+            delete_field($field['key'], $postId);
+
+            return true;
+        }, 10, 4);
 
         foreach ($acfNames as $acfName) {
-            $hook = preg_match("/^acf_/", $acfName) ? 'key=' . $acfName : 'name=' . $acfName;
-
-            add_filter("acf/load_value/{$hook}", function ($value, int $postId, array $field) use ($acfName) {
+            add_filter("acf/load_value/name={$acfName}", function ($value, int $postId, array $field) use ($acfName) {
                 $globalKey = 'prevent_acf_load_value_filter_' . $postId;
 
                 if (get_post_type($postId) !== $this->getKey() || !empty($GLOBALS[$globalKey])) {
@@ -758,15 +769,29 @@ class AdminPostType extends Admin
 
                 $post = get_post($postId);
 
-                $content = $post->post_content_filtered ? unserialize($post->post_content_filtered) : [];
+                if ($post->post_content_filtered) {
+                    $content = @unserialize(@gzuncompress(@base64_decode($post->post_content_filtered)));
+                    // поддержка предыдущей версии хранения данных
+                    if (!$content) {
+                        $content = @unserialize($post->post_content_filtered);
+                    }
+                } else {
+                    $content = [];
+                }
 
-                $resVal = isset($content[$acfKey]) ? $content[$acfKey] : $value;
+                $resVal = $value;
+
+                if (isset($content[$field['name']])) {
+                    $resVal = $content[$field['name']];
+                } else if (isset($content[$acfKey])) {
+                    $resVal = $content[$acfKey];
+                }
 
                 if ($filter) {
                     return HelperAcf::formatAcfValue($resVal);
                 }
 
-                return $resVal;
+                return HelperAcf::toAdminValue($field['name'], $resVal);
             }, 10, 3);
         }
         return $this;
