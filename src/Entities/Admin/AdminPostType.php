@@ -723,6 +723,10 @@ class AdminPostType extends Admin
 
             $toSave = HelperAcf::formatAcfValue($fieldVal, true);
 
+            if ($field['type'] === 'repeater') {
+                $toSave = is_array($toSave) ? array_values($toSave) : [];
+            }
+
             if ($post->post_content_filtered) {
                 $data = @unserialize(@gzuncompress(@base64_decode($post->post_content_filtered)));
                 // поддержка предыдущей версии хранения данных
