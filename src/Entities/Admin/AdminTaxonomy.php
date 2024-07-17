@@ -334,4 +334,16 @@ class AdminTaxonomy extends Admin
             HelperFn::execCallback($callback, $termId, $termTaxId, $update, $args);
         }, 10, 4);
     }
+
+
+    function filterArchiveMainQuery(callable $callback)
+    {
+        add_action('pre_get_posts', function (\WP_Query $query) use ($callback) {
+            if (!$query->is_main_query() || !$query->is_tax($this->getKey())) {
+                return;
+            }
+            HelperFn::execCallback($callback, $query);
+        });
+        return $this;
+    }
 }
