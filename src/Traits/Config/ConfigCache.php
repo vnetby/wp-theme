@@ -11,6 +11,7 @@ trait ConfigCache
 {
     protected Cache $cache;
     protected CacheProvider $cacheProvider;
+    private bool $__cacheEnabled = true;
 
 
     function registerCache()
@@ -19,6 +20,26 @@ trait ConfigCache
             $this->cacheProvider = new CacheFile;
         }
         $this->cache = new Cache($this->cacheProvider);
+    }
+
+
+    /**
+     * @return static
+     */
+    function enableCache()
+    {
+        $this->__cacheEnabled = true;
+        return $this;
+    }
+
+
+    /**
+     * @return static
+     */
+    function disableCache()
+    {
+        $this->__cacheEnabled = false;
+        return $this;
     }
 
 
@@ -38,6 +59,6 @@ trait ConfigCache
 
     function fetchCache(string $key, callable $fn, int $ttl = 0)
     {
-        return $this->cache->fetch($key, $fn, $ttl);
+        return $this->__cacheEnabled ? $this->cache->fetch($key, $fn, $ttl) : $fn();
     }
 }
